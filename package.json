@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node run ./src/app.js",
+    "dev": "nodemon run ./src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
