@@ -8,5 +8,6 @@ ruta.get('/:id', ctrl.getproducto)
 ruta.post('/', ctrl.crearProducto)
 ruta.put('/:id', ctrl.actualizarProducto)
 ruta.delete('/:id', ctrl.eliminarProducto)
+ruta.get('/categoria', ctrl.getCategoriaProductos)
 
 export default ruta

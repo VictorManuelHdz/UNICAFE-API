@@ -57,3 +57,18 @@ export const eliminarProducto = async(id)=>{
     )
     return result
 }
+
+export const getProductosByCategoria = async (idCategoria) => {
+    const [rows] = await db.query(`
+        SELECT 
+            intIdProducto AS id, 
+            vchNombre AS nombre, 
+            vchDescripcion AS descripcion, 
+            intStock AS stock, 
+            intIdCategoria AS idCategoria,
+            decPrecioVenta AS precioVenta,
+            vchImagen AS imagen
+        FROM tblproductos 
+        WHERE intIdCategoria = ?`, [idCategoria]);
+    return rows;
+};

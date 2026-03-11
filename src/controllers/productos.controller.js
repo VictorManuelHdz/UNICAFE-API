@@ -60,3 +60,20 @@ export const eliminarProducto = async(req, res)=>{
         res.status(500).json({error: error.message}) 
     }
 }
+
+export const getCategoriaProductos = async (req, res) => {
+    try {
+        const { categoria } = req.query; // Capturamos ?categoria=X de la URL
+        
+        let productos;
+        if (categoria) {
+            productos = await productosmodelo.getProductosByCategoria(categoria);
+        } else {
+            productos = await productosmodelo.getproductos();
+        }
+        
+        res.status(200).json(productos);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
