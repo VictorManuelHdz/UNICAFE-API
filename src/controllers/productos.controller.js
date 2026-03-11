@@ -1,14 +1,24 @@
 import * as productosmodelo from '../models/productos.model.js'
 
-export const getAllproductos = async(req, res)=>{
+export const getAllproductos = async (req, res) => {
     try {
-        const productos = await productosmodelo.getproductos();
-        res.status(200).json(productos);
-    } catch(error) {
-        res.status(500).json({error: error.message})
-    }
-}
+        // Capturamos lo que viene después del '?' (ej: ?categoria=6)
+        const { categoria } = req.query; 
 
+        if (categoria) {
+            // Llamamos a la función de filtrado en el modelo
+            const productosFiltrados = await productosmodelo.getProductosByCategoria(categoria);
+            return res.status(200).json(productosFiltrados);
+        }
+
+        // Si no hay categoría, ejecutamos la lógica normal de traer todo
+        const todos = await productosmodelo.getproductos();
+        res.status(200).json(todos);
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 export const getproducto = async(req, res)=>{
     try {
         const producto = await productosmodelo.getproducto(req.params.id)
