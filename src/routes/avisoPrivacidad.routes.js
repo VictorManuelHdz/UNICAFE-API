@@ -3,8 +3,9 @@ import * as ctrl from '../controllers/avisoPrivacidad.controller.js';
 
 const ruta = Router();
 
-// Endpoint semántico para el frontend
-ruta.get('/', ctrl.obtenerAviso);
+ruta.get('/', ctrl.getAllAvisos);
+ruta.post('/', ctrl.crearAviso);
 ruta.put('/:id', ctrl.editarAviso);
+ruta.delete('/:id', ctrl.eliminarAviso);
 
 export default ruta;
