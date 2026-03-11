@@ -9,6 +9,7 @@ import rolesRoutes from './routes/roles.routes.js'
 import pedidosRoutes from './routes/pedidos.routes.js'
 import somosRoutes from './routes/somos.routes.js'
 import terminosRoutes from './routes/terminos.routes.js'
+import avisoRoutes from './routes/avisoPrivacidad.routes.js'
 
 const app = express()
 
@@ -24,6 +25,7 @@ app.use('/api/roles', rolesRoutes)
 app.use('/api/pedidos', pedidosRoutes)
 app.use('/api/somos',somosRoutes)
 app.use('/api/terminos', terminosRoutes)
+app.use('/api/aviso', avisoRoutes)
 
 
 const PORT =3000
