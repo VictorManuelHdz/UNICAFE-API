@@ -3,6 +3,7 @@ import cors from 'cors'
 import productosRoutes from './routes/productos.routes.js'
 import usuariosRoutes from './routes/usuarios.routes.js'
 import menuRoutes from './routes/menu.routes.js'
+import categoriasRoutes from './routes/categorias.routes.js'
 
 const app = express()
 
@@ -12,6 +13,7 @@ app.use(express.json())
 app.use('/api/productos', productosRoutes)
 app.use('/api/usuarios', usuariosRoutes)
 app.use('/api/menu', menuRoutes)
+app.use('/api/categorias',categoriasRoutes )
 
 const PORT =3000
 

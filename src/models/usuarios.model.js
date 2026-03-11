@@ -1,42 +1,69 @@
-import {db} from '../config/database.js'
+import { db } from '../config/database.js';
 
-export const getUsuarios = async()=>{
-    const [rows] = await db.query('SELECT * FROM tblusuario')
-    return rows
-}
+export const getUsuarios = async () => {
+    const [rows] = await db.query(`
+        SELECT 
+            intIdUsuario AS id, 
+            vchNombres AS nombres, 
+            vchApaterno AS apellidoPaterno, 
+            vchAmaterno AS apellidoMaterno, 
+            vchTelefono AS telefono, 
+            vchCorreo AS correo, 
+            vchDireccion AS direccion, 
+            intIdRol AS rol 
+        FROM tblUsuario
+    `);
+    return rows;
+};
 
-export const getUsuario = async(id)=>{
-    const [rows] = await db.query('SELECT * FROM tblusuario WHERE id = ?',[id])
-    return rows[0]
-}
+export const getUsuario = async (id) => {
+    const [rows] = await db.query(`
+        SELECT 
+            intIdUsuario AS id, 
+            vchNombres AS nombres, 
+            vchApaterno AS apellidoPaterno, 
+            vchAmaterno AS apellidoMaterno, 
+            vchTelefono AS telefono, 
+            vchCorreo AS correo, 
+            vchDireccion AS direccion, 
+            intIdRol AS rol 
+        FROM tblUsuario 
+        WHERE intIdUsuario = ?`, [id]);
+    return rows[0];
+};
 
-export const crearUsuario = async({vchNombres, vchApaterno, vchAmaterno, vchTelefono, vchCorreo, vchDireccion, vchPassword, intIdRol})=>{
-    const [result]= await db.query(
+// Mantenemos tu lógica de desestructuración con valores por defecto (|| null)
+export const crearUsuario = async ({ nombres, apellidoPaterno, apellidoMaterno, telefono, correo, direccion, password, rol }) => {
+    const [result] = await db.query(
         'INSERT INTO tblUsuario (vchNombres, vchApaterno, vchAmaterno, vchTelefono, vchCorreo, vchDireccion, vchPassword, intIdRol) values(?,?,?,?,?,?,?,?)',
-        [vchNombres, vchApaterno, vchAmaterno, vchTelefono, vchCorreo, vchDireccion, vchPassword, intIdRol]
-    )
-    return {id: result.insertId, vchNombres, vchApaterno, vchAmaterno, vchTelefono, vchCorreo, vchDireccion, vchPassword, intIdRol}
-}
+        [nombres, apellidoPaterno, apellidoMaterno, telefono, correo, direccion, password, rol]
+    );
+    return { id: result.insertId, nombres, apellidoPaterno, correo };
+};
 
+// Mantenemos la lógica dinámica pero traduciendo las llaves para proteger la DB
+export const actualizarUsuario = async (id, camposAmigables) => {
+    const diccionario = {
+        nombres: 'vchNombres',
+        apellidoPaterno: 'vchApaterno',
+        apellidoMaterno: 'vchAmaterno',
+        telefono: 'vchTelefono',
+        correo: 'vchCorreo',
+        direccion: 'vchDireccion',
+        password: 'vchPassword',
+        rol: 'intIdRol'
+    };
 
-export const actualizarUsuario = async (id, campos) => {
-
-    const keys = Object.keys(campos);
-    
-    const camposSql = keys.map(key => `${key} = ?`).join(', ');
-
-    const valores = Object.values(campos);
-    valores.push(id);
+    const keys = Object.keys(camposAmigables);
+    const camposSql = keys.map(key => `${diccionario[key] || key} = ?`).join(', ');
+    const valores = [...Object.values(camposAmigables), id];
 
     const sql = `UPDATE tblUsuario SET ${camposSql} WHERE intIdUsuario = ?`;
-
     const [result] = await db.query(sql, valores);
     return result;
 };
 
-export const elimianrUsuario = async(id)=>{
-    const [result]=await db.query(
-        'DELETE FROM tblUsuario WHERE intIdUsuario=?',[id]
-    )
-    return result
-}
+export const eliminarUsuario = async (id) => {
+    const [result] = await db.query('DELETE FROM tblUsuario WHERE intIdUsuario = ?', [id]);
+    return result;
+};

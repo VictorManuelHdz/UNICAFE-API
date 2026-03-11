@@ -1,34 +1,59 @@
 import { db } from '../config/database.js';
 
 export const getproductos = async() => {
-    const [rows] = await db.query('SELECT * FROM tblproductos');
+    // Usamos AS para renombrar cada columna en la respuesta JSON
+    const [rows] = await db.query(`
+        SELECT 
+            intIdProducto AS id, 
+            vchNombre AS nombre, 
+            vchDescripcion AS descripcion, 
+            intStock AS stock, 
+            intIdCategoria AS idCategoria,
+            vchRFCProveedor AS rfcProveedor,
+            decPrecioCompra AS precioCompra,
+            decPrecioVenta AS precioVenta,
+            vchImagen AS imagen
+        FROM tblproductos
+    `);
     return rows;
 }  
 
 export const getproducto = async(id) => {
-    const [rows] = await db.query('SELECT * FROM tblproductos WHERE id = ?', [id]);
+    const [rows] = await db.query(`
+        SELECT 
+            intIdProducto AS id, 
+            vchNombre AS nombre, 
+            vchDescripcion AS descripcion, 
+            intStock AS stock, 
+            intIdCategoria AS idCategoria,
+            vchRFCProveedor AS rfcProveedor,
+            decPrecioCompra AS precioCompra,
+            decPrecioVenta AS precioVenta,
+            vchImagen AS imagen
+        FROM tblproductos WHERE intIdProducto = ?`, [id]);
     return rows[0];
 }
 
-export const crearProducto = async({vchNombre,vchDescripcion, intStock, intIdCategoria,vchRFCProveedor, decPrecioCompra, decPrecioVenta, vchImagen})=>{
-    const [result] =await db.query(
-        'INSERT INTO tblproductos (vchNombre,vchDescripcion, intStock, intIdCategoria,vchRFCProveedor, decPrecioCompra, decPrecioVenta, vchImagen) values (?,?,?,?,?,?,?,?)',
-        [vchNombre,vchDescripcion||null, intStock||0, intIdCategoria||null,vchRFCProveedor||null, decPrecioCompra||0.00, decPrecioVenta||0.00, vchImagen||null]
+// Mantenemos tu lógica de desestructuración original
+export const crearProducto = async({nombre, descripcion, stock, idCategoria, rfcProveedor, precioCompra, precioVenta, imagen})=>{
+    const [result] = await db.query(
+        'INSERT INTO tblproductos (vchNombre, vchDescripcion, intStock, intIdCategoria, vchRFCProveedor, decPrecioCompra, decPrecioVenta, vchImagen) values (?,?,?,?,?,?,?,?)',
+        [nombre, descripcion || null, stock || 0, idCategoria || null, rfcProveedor || null, precioCompra || 0.00, precioVenta || 0.00, imagen || null]
     );
-    return {id: result.insertId, vchNombre,vchDescripcion, intStock, intIdCategoria,vchRFCProveedor, decPrecioCompra, decPrecioVenta, vchImagen}
+    return {id: result.insertId, nombre, descripcion, stock, idCategoria, rfcProveedor, precioCompra, precioVenta, imagen}
 }
 
-export const actualizarProducto = async(id,{vchNombre,vchDescripcion, intStock, intIdCategoria,vchRFCProveedor, decPrecioCompra, decPrecioVenta, vchImagen})=>{
-    const [result]=await db.query(
-        'UPDATE tblProductos SET vchNombre=?,vchDescripcion=?, intStock=?, intIdCategoria=?,vchRFCProveedor=?, decPrecioCompra=?, decPrecioVenta=?, vchImagen=? WHERE intIdProducto=?',
-        [vchNombre,vchDescripcion||null, intStock||0, intIdCategoria||null,vchRFCProveedor||null, decPrecioCompra||0.00, decPrecioVenta||0.00, vchImagen||null, id]
+export const actualizarProducto = async(id, {nombre, descripcion, stock, idCategoria, rfcProveedor, precioCompra, precioVenta, imagen})=>{
+    const [result] = await db.query(
+        'UPDATE tblproductos SET vchNombre=?, vchDescripcion=?, intStock=?, intIdCategoria=?, vchRFCProveedor=?, decPrecioCompra=?, decPrecioVenta=?, vchImagen=? WHERE intIdProducto=?',
+        [nombre, descripcion || null, stock || 0, idCategoria || null, rfcProveedor || null, precioCompra || 0.00, precioVenta || 0.00, imagen || null, id]
     )
     return result
 }
 
-export const eliminarProducto =async(id)=>{
-    const [result]=await db.query(
-        'DELETE FROM tblProductos WHERE intIdProducto=?',[id]
+export const eliminarProducto = async(id)=>{
+    const [result] = await db.query(
+        'DELETE FROM tblproductos WHERE intIdProducto=?', [id]
     )
     return result
 }
