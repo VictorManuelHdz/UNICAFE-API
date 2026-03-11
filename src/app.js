@@ -6,6 +6,7 @@ import menuRoutes from './routes/menu.routes.js'
 import categoriasRoutes from './routes/categorias.routes.js'
 import proveedoresRoutes from './routes/proveedores.routes.js'
 import rolesRoutes from './routes/roles.routes.js'
+import pedidosRoutes from './routes/pedidos.routes.js'
 
 const app = express()
 
@@ -18,6 +19,7 @@ app.use('/api/menu', menuRoutes)
 app.use('/api/categorias',categoriasRoutes )
 app.use('/api/proveedores', proveedoresRoutes)
 app.use('/api/roles', rolesRoutes)
+app.use('/api/pedidos', pedidosRoutes)
 
 const PORT =3000
 
