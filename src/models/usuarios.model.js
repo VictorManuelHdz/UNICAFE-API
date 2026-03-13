@@ -11,7 +11,7 @@ export const getUsuarios = async () => {
             vchCorreo AS correo, 
             vchDireccion AS direccion, 
             intIdRol AS rol 
-        FROM tblUsuario
+        FROM tblusuario
     `);
     return rows;
 };
@@ -27,7 +27,7 @@ export const getUsuario = async (id) => {
             vchCorreo AS correo, 
             vchDireccion AS direccion, 
             intIdRol AS rol 
-        FROM tblUsuario 
+        FROM tblusuario 
         WHERE intIdUsuario = ?`, [id]);
     return rows[0];
 };
@@ -35,7 +35,7 @@ export const getUsuario = async (id) => {
 // Mantenemos tu lógica de desestructuración con valores por defecto (|| null)
 export const crearUsuario = async ({ nombres, apellidoPaterno, apellidoMaterno, telefono, correo, direccion, password, rol }) => {
     const [result] = await db.query(
-        'INSERT INTO tblUsuario (vchNombres, vchApaterno, vchAmaterno, vchTelefono, vchCorreo, vchDireccion, vchPassword, intIdRol) values(?,?,?,?,?,?,?,?)',
+        'INSERT INTO tblusuario (vchNombres, vchApaterno, vchAmaterno, vchTelefono, vchCorreo, vchDireccion, vchPassword, intIdRol) values(?,?,?,?,?,?,?,?)',
         [nombres, apellidoPaterno, apellidoMaterno, telefono, correo, direccion, password, rol]
     );
     return { id: result.insertId, nombres, apellidoPaterno, correo };
@@ -58,12 +58,12 @@ export const actualizarUsuario = async (id, camposAmigables) => {
     const camposSql = keys.map(key => `${diccionario[key] || key} = ?`).join(', ');
     const valores = [...Object.values(camposAmigables), id];
 
-    const sql = `UPDATE tblUsuario SET ${camposSql} WHERE intIdUsuario = ?`;
+    const sql = `UPDATE tblusuario SET ${camposSql} WHERE intIdUsuario = ?`;
     const [result] = await db.query(sql, valores);
     return result;
 };
 
 export const eliminarUsuario = async (id) => {
-    const [result] = await db.query('DELETE FROM tblUsuario WHERE intIdUsuario = ?', [id]);
+    const [result] = await db.query('DELETE FROM tblusuario WHERE intIdUsuario = ?', [id]);
     return result;
 };

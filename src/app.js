@@ -10,6 +10,7 @@ import pedidosRoutes from './routes/pedidos.routes.js'
 import somosRoutes from './routes/somos.routes.js'
 import terminosRoutes from './routes/terminos.routes.js'
 import avisoRoutes from './routes/avisoPrivacidad.routes.js'
+import categoriaMenu from './routes/categoriaMenu.routes.js'
 
 const app = express()
 
@@ -26,6 +27,7 @@ app.use('/api/pedidos', pedidosRoutes)
 app.use('/api/somos',somosRoutes)
 app.use('/api/terminos', terminosRoutes)
 app.use('/api/aviso', avisoRoutes)
+app.use('/api/Categoria-menu', categoriaMenu)
 
 
 const PORT =3000
