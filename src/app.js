@@ -11,12 +11,14 @@ import somosRoutes from './routes/somos.routes.js'
 import terminosRoutes from './routes/terminos.routes.js'
 import avisoRoutes from './routes/avisoPrivacidad.routes.js'
 import categoriaMenu from './routes/categoriaMenu.routes.js'
+import authRoutes from './routes/auth.routes.js'
 
 const app = express()
 
 app.use(cors())
 app.use(express.json())
 
+app.use('/api/auth', authRoutes)
 app.use('/api/productos', productosRoutes)
 app.use('/api/usuarios', usuariosRoutes)
 app.use('/api/menu', menuRoutes)
@@ -28,6 +30,7 @@ app.use('/api/somos',somosRoutes)
 app.use('/api/terminos', terminosRoutes)
 app.use('/api/aviso', avisoRoutes)
 app.use('/api/Categoria-menu', categoriaMenu)
+
 
 
 const PORT =3000

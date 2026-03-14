@@ -67,3 +67,11 @@ export const eliminarUsuario = async (id) => {
     const [result] = await db.query('DELETE FROM tblusuario WHERE intIdUsuario = ?', [id]);
     return result;
 };
+
+export const findUsuarioByEmai =async(email)=>{
+    const [row]= await db.query(
+        'SELECT intIdUsuario AS id, vchCorreo AS correo, vchpassword AS pass,  vchNombres AS nombres, intIdRol AS rol FROM tblusuario WHERE vchCorreo=? ',
+        [email]
+    )
+    return row[0]
+}
