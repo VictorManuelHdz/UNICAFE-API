@@ -29,7 +29,7 @@ app.use('/api/pedidos', pedidosRoutes)
 app.use('/api/somos',somosRoutes)
 app.use('/api/terminos', terminosRoutes)
 app.use('/api/aviso', avisoRoutes)
-app.use('/api/Categoria-menu', categoriaMenu)
+app.use('/api/categorias-menu', categoriaMenu)
 
 
 
