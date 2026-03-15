@@ -16,7 +16,7 @@ import authRoutes from './routes/auth.routes.js'
 const app = express()
 
 app.use(cors())
-app.use(express.json())
+app.use(express.json({origin: 'https://victormanuelhdz.github.io'}))
 
 app.use('/api/auth', authRoutes)
 app.use('/api/productos', productosRoutes)
