@@ -88,3 +88,18 @@ export const eliminarUsuario = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+export const verificarHashTest = async (req, res) => {
+    try {
+        const { correo } = req.query;
+        if (!correo) return res.status(400).json({ message: 'Se requiere el correo' });
+
+        const usuario = await findUsuarioByEmai(correo);
+        if (!usuario) return res.status(404).json({ message: 'Usuario no encontrado' });
+
+        // Devolvemos ÚNICAMENTE el hash para que Postman lo evalúe
+        res.status(200).json({ hash: usuario.pass });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
