@@ -103,3 +103,28 @@ export const verificarHashTest = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+export const registrarCliente = async (req, res) => {
+    try {
+        const { nombres, apellidoPaterno, apellidoMaterno, telefono, correo, direccion, password } = req.body;
+
+        if (!nombres || !apellidoPaterno || !apellidoMaterno || !telefono || !correo || !direccion || !password) {
+            return res.status(400).json({ message: 'Todos los campos son requeridos' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const passwordEncriptada = await bcrypt.hash(password, salt);
+
+        // FORZAMOS EL ROL A 3 (Cliente) EN EL BACKEND PARA EVITAR HACKEOS
+        const datosConHash = {
+            ...req.body,
+            password: passwordEncriptada,
+            rol: 3 
+        };
+
+        const nuevo = await usuariosmodelo.crearUsuario(datosConHash);
+        res.status(201).json(nuevo);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};

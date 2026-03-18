@@ -4,10 +4,12 @@ import * as ctrl from '../controllers/usuarios.controller.js'
 
 const ruta= Router()
 
-ruta.get('/', verificarToken, ctrl.getAllUsuarios)
-// Ruta de prueba para verificar el hash de la contraseña
+// Rutas Públicas
+ruta.post('/registro', ctrl.registrarCliente)
 ruta.get('/test/verificar-hash', ctrl.verificarHashTest)
 
+// Rutas Privadas con autenticación
+ruta.get('/', verificarToken, ctrl.getAllUsuarios)
 ruta.get('/:id', verificarToken, ctrl.getUsuario)  
 ruta.post('/', verificarToken, ctrl.crearUsuario)
 ruta.put('/:id', verificarToken, ctrl.actualizarUsuario)
