@@ -64,7 +64,7 @@ export const cambiarEstado = async (req, res) => {
                 const pedido = await pedidosModelo.getPedidoById(id);
 
                 if (pedido && pedido.info.vchTelefono) {
-                    const telefonoAlumno = `+52${pedido.info.vchTelefono}`;
+                    const telefonoAlumno = `+527711600414`;
 
                     const mensaje = `¡Hola ${pedido.info.vchNombres}! ☕ Tu pedido #${id} en Cafetería UTHH está ${estado.toUpperCase()}. Pasa a ventanilla a recogerlo.`;
 
