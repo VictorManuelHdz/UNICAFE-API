@@ -1,4 +1,9 @@
+import twilio from 'twilio';
 import * as pedidosModelo from '../models/pedidos.model.js';
+
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const client = twilio(accountSid, authToken);
 
 export const getAllPedidos = async (req, res) => {
     try {
@@ -27,7 +32,6 @@ export const crearPedido = async (req, res) => {
     try {
         const { idUsuario, total, notas, carrito } = req.body;
 
-        // Verificamos que no nos manden un carrito fantasma
         if (!idUsuario || total === undefined || !carrito || carrito.length === 0) {
             return res.status(400).json({ message: 'Faltan datos obligatorios o el carrito está vacío' });
         }
@@ -54,6 +58,30 @@ export const cambiarEstado = async (req, res) => {
         const actualizado = await pedidosModelo.actualizarEstadoPedido(id, estado);
 
         if (!actualizado) return res.status(404).json({ message: 'Pedido no encontrado' });
+
+        if (estado.toLowerCase() === 'listo' || estado.toLowerCase() === 'entregado') {
+            try {
+                const pedido = await pedidosModelo.getPedidoById(id);
+
+                if (pedido && pedido.info.vchTelefono) {
+                    const telefonoAlumno = `+52${pedido.info.vchTelefono}`;
+
+                    const mensaje = `¡Hola ${pedido.info.vchNombres}! ☕ Tu pedido #${id} en Cafetería UTHH está ${estado.toUpperCase()}. Pasa a ventanilla a recogerlo.`;
+
+                    await client.messages.create({
+                        body: mensaje,
+                        from: 'whatsapp:+14155238886', 
+                        to: `whatsapp:${telefonoAlumno}`
+                    });
+
+                    console.log(`WhatsApp enviado exitosamente a ${telefonoAlumno}`);
+                }
+            } catch (twilioError) {
+                // Si Twilio falla (ej. número no válido), no rompemos la API, solo avisamos en consola
+                console.error("Error al enviar el WhatsApp:", twilioError.message);
+            }
+        }
+        // -------------------------------------------------------------
 
         res.status(200).json({ message: 'Estado actualizado correctamente' });
     } catch (error) {
