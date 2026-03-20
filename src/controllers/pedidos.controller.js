@@ -43,3 +43,21 @@ export const crearPedido = async (req, res) => {
         res.status(500).json({ error: 'Ocurrió un error al procesar el pedido' });
     }
 };
+
+export const cambiarEstado = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { estado } = req.body;
+
+        if (!estado) return res.status(400).json({ message: 'El estado es requerido' });
+
+        const actualizado = await pedidosModelo.actualizarEstadoPedido(id, estado);
+
+        if (!actualizado) return res.status(404).json({ message: 'Pedido no encontrado' });
+
+        res.status(200).json({ message: 'Estado actualizado correctamente' });
+    } catch (error) {
+        console.error("Error al cambiar estado:", error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+};

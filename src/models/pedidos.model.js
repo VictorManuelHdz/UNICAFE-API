@@ -1,6 +1,6 @@
 import { db } from '../config/database.js';
 
-// 1. Obtener todos los pedidos (Para el panel de empleados/admins)
+// Obtener todos los pedidos (Para el panel de empleados/admins)
 export const getPedidos = async () => {
     const [rows] = await db.query(`
         SELECT 
@@ -19,7 +19,7 @@ export const getPedidos = async () => {
     return rows;
 };
 
-// 2. Obtener un pedido específico con TODO su detalle
+// Obtener un pedido específico con TODO su detalle
 export const getPedidoById = async (id) => {
     const [pedidoInfo] = await db.query(`
         SELECT p.*, u.vchNombres, u.vchApaterno, u.vchTelefono
@@ -44,17 +44,25 @@ export const getPedidoById = async (id) => {
     };
 };
 
-// 3. Crear el pedido usando nuestro Procedimiento Almacenado
+// Crear el pedido usando nuestro Procedimiento Almacenado
 export const crearPedido = async (idUsuario, total, notas, carrito) => {
     // Convertimos el carrito en texto JSON
     const carritoJSON = JSON.stringify(carrito);
 
-    // Llamamos al procedimiento almacenado de MySQL
+    // Llamamos al procedimiento almacenado de la DB para crear el pedido
     const [result] = await db.query(
         'CALL sp_crear_pedido(?, ?, ?, ?)',
         [idUsuario, total, notas || null, carritoJSON]
     );
 
-    // MySQL nos devuelve el folio generado
+    // El procedimiento devuelve el folio del nuevo pedido en la primera fila del primer resultado
     return result[0][0].folio;
+};
+
+export const actualizarEstadoPedido = async (idPedido, nuevoEstado) => {
+    const [result] = await db.query(
+        'UPDATE tblpedidos SET vchEstado = ? WHERE intIdPedido = ?',
+        [nuevoEstado, idPedido]
+    );
+    return result.affectedRows > 0;
 };
