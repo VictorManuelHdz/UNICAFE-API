@@ -66,3 +66,17 @@ export const actualizarEstadoPedido = async (idPedido, nuevoEstado) => {
     );
     return result.affectedRows > 0;
 };
+
+export const getPedidosByUsuarioId = async (idUsuario) => {
+    const [rows] = await db.query(`
+        SELECT 
+            intIdPedido AS idPedido, 
+            dtmFechaHora AS fecha, 
+            decTotal AS total, 
+            vchEstado AS estado 
+        FROM tblpedidos 
+        WHERE intIdUsuario = ?
+        ORDER BY dtmFechaHora DESC
+    `, [idUsuario]);
+    return rows;
+};
