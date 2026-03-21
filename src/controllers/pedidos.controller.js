@@ -100,3 +100,37 @@ export const getPedidosUsuario = async (req, res) => {
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 };
+
+
+export const confirmarYRegistrarVenta = async (req, res) => {
+    const { sessionId } = req.params;
+
+    try {
+        // 1. Confirmamos con Stripe que el pago es real
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+        
+        if (session.payment_status !== 'paid') {
+            return res.status(400).json({ message: "El pago no ha sido completado." });
+        }
+
+        // 2. Sacamos los datos que guardamos en Metadata al crear la sesión
+        const idUsuario = session.metadata.idUsuario;
+        const total = session.amount_total / 100;
+
+        // 3. INSERTAMOS EN TU BASE DE DATOS
+        // Ejemplo de Query (Ajusta 'tbl_pedidos' al nombre real de tu tabla)
+        const sql = "INSERT INTO tbl_pedidos (id_usuario, total, fecha, estado) VALUES (?, ?, NOW(), 'Preparando')";
+        const [resultado] = await db.query(sql, [idUsuario, total]);
+
+        // 4. Respondemos al frontend
+        res.json({ 
+            success: true, 
+            message: "Pedido registrado correctamente",
+            idPedido: resultado.insertId 
+        });
+
+    } catch (error) {
+        console.error("Error al registrar venta:", error.message);
+        res.status(500).json({ error: "Error interno al registrar el pedido" });
+    }
+};
