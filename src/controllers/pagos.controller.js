@@ -13,15 +13,16 @@ export const crearSessionPago = async(req,res)=>{
                     currency: 'mx',
                     prodct_data:{
                         name: item.name,
-                        description: 'Pedido Unicafe'
+                        images: [p.imagen],
                     },
                     unit_amout: Math.round(item.price *100),
                 },
                 quantity: item.cantidad,
             })),
             mode: 'payment',
-            success_url:`${process.env.STRIPE_SUCCESS_URL}?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: process.env.STRIPE_CANCEL_URL
+            metadata: {idUsuario: req.usuario.id},
+            success_url:`https://unicafe-web.vercel.app/success.html?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: 'https://unicafe-web.vercel.app/menu.html'
         })
         res.json({url : session.url})
 
