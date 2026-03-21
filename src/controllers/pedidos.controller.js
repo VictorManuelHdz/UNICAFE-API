@@ -109,23 +109,25 @@ export const confirmarYRegistrarVenta = async (req, res) => {
     const { sessionId } = req.params;
 
     try {
-        // 1. Confirmamos con Stripe que el pago es real
+        // 1. Validar con Stripe
         const session = await stripe.checkout.sessions.retrieve(sessionId);
         
         if (session.payment_status !== 'paid') {
             return res.status(400).json({ message: "El pago no ha sido completado." });
         }
 
-        // 2. Sacamos los datos que guardamos en Metadata al crear la sesión
+        // 2. Metadata: Asegúrate que 'idUsuario' se mandó desde el frontend
         const idUsuario = session.metadata.idUsuario;
         const total = session.amount_total / 100;
 
-        // 3. INSERTAMOS EN TU BASE DE DATOS
-        // Ejemplo de Query (Ajusta 'tbl_pedidos' al nombre real de tu tabla)
-        const sql = "INSERT INTO tbl_pedidos (id_usuario, total, fecha, estado) VALUES (?, ?, NOW(), 'Preparando')";
+        // 3. INSERT (Ajusta los nombres a tu DB real)
+        // Ejemplo: Si tu tabla se llama 'pedidos' y usa 'idUsuario'
+        // pedidos.controller.js
+        const sql = "INSERT INTO tblpedidos (intIdUsuario, decTotal, dtmFechaHora, vchEstado, vchNotas) VALUES (?, ?, NOW(), 'Preparando', 'Pago realizado vía Stripe')";
         const [resultado] = await db.query(sql, [idUsuario, total]);
 
-        // 4. Respondemos al frontend
+        console.log("Pedido insertado con ID:", resultado.insertId);
+
         res.json({ 
             success: true, 
             message: "Pedido registrado correctamente",
@@ -133,7 +135,8 @@ export const confirmarYRegistrarVenta = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error al registrar venta:", error.message);
-        res.status(500).json({ error: "Error interno al registrar el pedido" });
+        // Este console.log es el que debes ver en los LOGS de Vercel
+        console.error("ERROR REAL EN EL SERVIDOR:", error.message);
+        res.status(500).json({ error: error.message });
     }
 };
