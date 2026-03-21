@@ -1,11 +1,13 @@
+// pagos.routes.js
 import { Router } from 'express';
 import * as ctrl from '../controllers/pagos.controller.js';
-// 1. IMPORTA TU MIDDLEWARE DE AUTENTICACIÓN
+// REVISA: ¿Tu middleware se llama validarJWT o verifyToken? 
+// El nombre del archivo y la función deben ser exactos.
 import { validarJWT } from '../middlewares/validar-jwt.js'; 
 
 const ruta = Router();
 
-// 2. AGREGA EL MIDDLEWARE AQUÍ
+// Si agregaste validarJWT aquí pero no existe el archivo, Vercel truena.
 ruta.post('/checkout', validarJWT, ctrl.crearSessionPago); 
 ruta.post('/confirmar/:id', ctrl.confirmarPago);
 
