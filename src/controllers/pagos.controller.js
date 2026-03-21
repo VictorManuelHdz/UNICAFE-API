@@ -27,8 +27,8 @@ export const crearSessionPago = async (req, res) => {
             mode: 'payment',
             // Si req.usuario no existe, esto dará error. Agregamos una protección:
             metadata: { idUsuario: req.usuario?.id || 'invitado' }, 
-            success_url: `https://unicafe-web.vercel.app/mis_pedidos.html`,
-            cancel_url: 'https://unicafe-web.vercel.app/menu.html'
+            success_url: `https://victormanuelhdz.github.io/UNICAFE-FRONTEND/public/mis_pedidos.html?pago=exitoso&session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: 'https://victormanuelhdz.github.io/UNICAFE-FRONTEND/public/menu.html'
         });
 
         res.json({ url: session.url });
