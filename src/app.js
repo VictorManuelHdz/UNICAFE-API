@@ -16,8 +16,14 @@ import pagosRoutes from './routes/pagos.routes.js'
 
 const app = express()
 
-app.use(cors())
-app.use(express.json({origin: 'https://victormanuelhdz.github.io'}))
+const corsOptions = {
+    origin: ['https://victormanuelhdz.github.io', 'http://127.0.0.1:5500'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+};
+app.use(cors(corsOptions))
+app.use(express.json())
 
 app.use('/api/auth', authRoutes)
 app.use('/api/productos', productosRoutes)
