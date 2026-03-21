@@ -109,22 +109,44 @@ export const getPedidosUsuario = async (req, res) => {
 };
 
 
-// pedidos.controller.js
 export const confirmarYRegistrarVenta = async (req, res) => {
     const { sessionId } = req.params;
+
     try {
         const session = await stripe.checkout.sessions.retrieve(sessionId);
-        const idUsuario = session.metadata.idUsuario;
+        
+        if (session.payment_status !== 'paid') {
+            return res.status(400).json({ message: "Pago no completado." });
+        }
 
-        console.log("Intentando registrar pedido para el usuario ID:", idUsuario);
+        // 1. CONVERSIÓN CRÍTICA: Convertimos el ID a número entero
+        // Si session.metadata.idUsuario es 'invitado' o no existe, esto fallará correctamente en el catch
+        const idUsuario = parseInt(session.metadata.idUsuario);
+        const total = session.amount_total / 100;
 
-        // Si idUsuario no existe en tblusuario, aquí es donde truena
-        const sql = "INSERT INTO tblpedidos (intIdUsuario, decTotal, dtmFechaHora, vchEstado) VALUES (?, ?, NOW(), 'Preparando')";
-        const [resultado] = await db.query(sql, [idUsuario, session.amount_total / 100]);
+        if (isNaN(idUsuario) || idUsuario <= 0) {
+            throw new Error(`ID de usuario no válido recibido de Stripe: ${session.metadata.idUsuario}`);
+        }
 
-        res.json({ success: true, idPedido: resultado.insertId });
+        // 2. INSERT: Nombres exactos de tu SQL
+        const sql = "INSERT INTO tblpedidos (intIdUsuario, decTotal, dtmFechaHora, vchEstado, vchNotas) VALUES (?, ?, NOW(), 'Preparando', 'Pago vía Stripe')";
+        
+        // 3. Obtención segura del ID insertado
+        const [resultado] = await db.query(sql, [idUsuario, total]);
+        const idGenerado = resultado.insertId || (resultado[0] && resultado[0].insertId);
+
+        res.json({ 
+            success: true, 
+            message: "Pedido registrado con éxito",
+            idPedido: idGenerado 
+        });
+
     } catch (error) {
-        // Este es el error de llave foránea que estás viendo
-        res.status(500).json({ error: error.message }); 
+        console.error("ERROR EN VERCEL:", error.message);
+        // Enviamos el mensaje detallado para que sepas si el ID sigue siendo el problema
+        res.status(500).json({ 
+            error: "Error al registrar el pedido", 
+            detalle: error.message 
+        });
     }
 };
