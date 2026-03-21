@@ -34,10 +34,10 @@ export const crearSessionPago = async (req, res) => {
 // Dentro de crearSessionPago en pagos.controller.js
 // Dentro de crearSessionPago en pagos.controller.js
 // pagos.controller.js
+// pagos.controller.js
 metadata: { 
-    // Intentamos obtener el ID probando los nombres más comunes
-    // Asegúrate de que coincida con lo que devuelves en tu Login
-    idUsuario: String(req.usuario?.id || req.usuario?.intIdUsuario || req.usuario?.sub || '0'), 
+    // Intentamos obtener el ID con los nombres que podrías haber usado al generar el JWT
+    idUsuario: String(req.usuario?.intIdUsuario || req.usuario?.id || req.usuario?.idUsuario || '0'), 
     carrito: JSON.stringify(productos)
 },
             success_url: `https://victormanuelhdz.github.io/UNICAFE-FRONTEND/public/mis_pedidos.html?pago=exitoso&session_id={CHECKOUT_SESSION_ID}`,
