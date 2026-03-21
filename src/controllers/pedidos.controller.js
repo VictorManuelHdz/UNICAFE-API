@@ -115,7 +115,7 @@ export const confirmarYRegistrarVenta = async (req, res) => {
 
     try {
         const session = await stripe.checkout.sessions.retrieve(sessionId);
-        
+
         if (session.payment_status !== 'paid') {
             return res.status(400).json({ message: "Pago no completado." });
         }
@@ -124,22 +124,23 @@ export const confirmarYRegistrarVenta = async (req, res) => {
         const idUsuario = session.metadata.idUsuario;
         const total = session.amount_total / 100;
 
-        // INSERT: Nombres exactos de tu SQL tblpedidos
-        const sql = "INSERT INTO tblpedidos (intIdUsuario, decTotal, dtmFechaHora, vchEstado, vchNotas) VALUES (?, ?, NOW(), 'Preparando', 'Pago vía Stripe')";
-        
-        const [resultado] = await db.query(sql, [idUsuario, total]);
+        // pedidos.controller.js
+        console.log("ID recuperado de Stripe:", session.metadata.idUsuario); //
 
-        res.json({ 
-            success: true, 
-            idPedido: resultado.insertId || resultado[0]?.insertId 
+        const sql = "INSERT INTO tblpedidos (intIdUsuario, decTotal, dtmFechaHora, vchEstado) VALUES (?, ?, NOW(), 'Preparando')"; //
+        const [resultado] = await db.query(sql, [idUsuario, total]); //
+
+        res.json({
+            success: true,
+            idPedido: resultado.insertId || resultado[0]?.insertId
         });
 
     } catch (error) {
         console.error("ERROR EN VERCEL:", error.message);
         // Cambiamos a status 200 temporalmente para que el navegador te deje leer el detalle del error
-        res.status(200).json({ 
-            success: false, 
-            error: "Error al registrar", 
+        res.status(200).json({
+            success: false,
+            error: "Error al registrar",
             detalle: error.message // <--- Aquí verás si es por el ID de usuario
         });
     }
