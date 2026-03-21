@@ -1,5 +1,8 @@
 import twilio from 'twilio';
 import * as pedidosModelo from '../models/pedidos.model.js';
+import Stripe from 'stripe';
+import { db } from '../config/db.js'; // O como se llame tu conexión
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
