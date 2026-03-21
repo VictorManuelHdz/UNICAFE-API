@@ -16,12 +16,8 @@ import pagosRoutes from './routes/pagos.routes.js'
 
 const app = express()
 
-const corsOptions = {
-   origin: '*', // Permite peticiones de cualquier origen temporalmente para pruebas
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-};
-app.use(cors(corsOptions))
+
+app.use(cors())
 app.use(express.json())
 
 app.use('/api/auth', authRoutes)
