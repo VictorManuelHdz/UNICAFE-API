@@ -28,8 +28,9 @@ export const crearSessionPago = async (req, res) => {
            // pagos.controller.js
 // pagos.controller.js
 // Dentro de crearSessionPago en pagos.controller.js
+// Dentro de crearSessionPago en pagos.controller.js
 metadata: { 
-    // Intenta ambos nombres por seguridad si no estás seguro de cómo viene en el JWT
+    // verificarToken guarda el objeto decodificado en req.usuario
     idUsuario: String(req.usuario?.id || req.usuario?.intIdUsuario || '47'), 
     carrito: JSON.stringify(productos)
 },
