@@ -25,15 +25,10 @@ export const crearSessionPago = async (req, res) => {
                 quantity: item.cantidad,
             })),
             mode: 'payment',
-            metadata: {
-                // Asegúrate de que esto use id o intIdUsuario según tu token
-                idUsuario: String(req.usuario?.id || req.usuario?.intIdUsuario || '0'),
-                carrito: JSON.stringify(productos.map(p => ({
-                    id: p.id,
-                    tipo: p.tipo || 'producto',
-                    cantidad: p.cantidad
-                })))
-            },
+           metadata: { 
+    // Asegúrate de usar el ID que viene de tu middleware de autenticación
+    idUsuario: String(req.usuario?.id || req.usuario?.intIdUsuario) 
+},
             success_url: `https://victormanuelhdz.github.io/UNICAFE-FRONTEND/public/mis_pedidos.html?pago=exitoso&session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: 'https://victormanuelhdz.github.io/UNICAFE-FRONTEND/public/menu.html'
         });
