@@ -111,18 +111,20 @@ export const getPedidosUsuario = async (req, res) => {
 
 // pedidos.controller.js
 // pedidos.controller.js
+// pedidos.controller.js
 export const confirmarYRegistrarVenta = async (req, res) => {
     const { sessionId } = req.params;
     try {
         const session = await stripe.checkout.sessions.retrieve(sessionId);
-        
-        // Convertimos explícitamente a número para evitar errores de tipo en MySQL
         const idUsuario = parseInt(session.metadata.idUsuario);
         const total = parseFloat(session.amount_total / 100);
 
-        // Verificamos que no sea un ID inválido antes de insertar
-        if (!idUsuario || idUsuario === 0) {
-            throw new Error("El ID de usuario recuperado de Stripe no es válido (0 o null)");
+        // Si el ID es 0 o no es un número, lanzamos error antes de tocar la DB
+        if (!idUsuario || isNaN(idUsuario) || idUsuario === 0) {
+            return res.status(200).json({ 
+                success: false, 
+                detalle: `ID de usuario inválido recuperado: ${session.metadata.idUsuario}` 
+            });
         }
 
         const sql = "INSERT INTO tblpedidos (intIdUsuario, decTotal, dtmFechaHora, vchEstado) VALUES (?, ?, NOW(), 'Preparando')";
@@ -130,6 +132,6 @@ export const confirmarYRegistrarVenta = async (req, res) => {
 
         res.json({ success: true, idPedido: resultado.insertId });
     } catch (error) {
-        res.status(200).json({ success: false, detalle: error.message }); //
+        res.status(200).json({ success: false, detalle: error.message });
     }
 };
