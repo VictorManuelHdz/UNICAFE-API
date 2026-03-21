@@ -110,38 +110,26 @@ export const getPedidosUsuario = async (req, res) => {
 
 
 // pedidos.controller.js
+// pedidos.controller.js
 export const confirmarYRegistrarVenta = async (req, res) => {
     const { sessionId } = req.params;
-
     try {
         const session = await stripe.checkout.sessions.retrieve(sessionId);
+        
+        // Convertimos explícitamente a número para evitar errores de tipo en MySQL
+        const idUsuario = parseInt(session.metadata.idUsuario);
+        const total = parseFloat(session.amount_total / 100);
 
-        if (session.payment_status !== 'paid') {
-            return res.status(400).json({ message: "Pago no completado." });
+        // Verificamos que no sea un ID inválido antes de insertar
+        if (!idUsuario || idUsuario === 0) {
+            throw new Error("El ID de usuario recuperado de Stripe no es válido (0 o null)");
         }
 
-        // Obtención del ID desde metadata
-        const idUsuario = session.metadata.idUsuario;
-        const total = session.amount_total / 100;
+        const sql = "INSERT INTO tblpedidos (intIdUsuario, decTotal, dtmFechaHora, vchEstado) VALUES (?, ?, NOW(), 'Preparando')";
+        const [resultado] = await db.query(sql, [idUsuario, total]);
 
-        // pedidos.controller.js
-        console.log("ID recuperado de Stripe:", session.metadata.idUsuario); //
-
-        const sql = "INSERT INTO tblpedidos (intIdUsuario, decTotal, dtmFechaHora, vchEstado) VALUES (?, ?, NOW(), 'Preparando')"; //
-        const [resultado] = await db.query(sql, [idUsuario, total]); //
-
-        res.json({
-            success: true,
-            idPedido: resultado.insertId || resultado[0]?.insertId
-        });
-
+        res.json({ success: true, idPedido: resultado.insertId });
     } catch (error) {
-        console.error("ERROR EN VERCEL:", error.message);
-        // Cambiamos a status 200 temporalmente para que el navegador te deje leer el detalle del error
-        res.status(200).json({
-            success: false,
-            error: "Error al registrar",
-            detalle: error.message // <--- Aquí verás si es por el ID de usuario
-        });
+        res.status(200).json({ success: false, detalle: error.message }); //
     }
 };

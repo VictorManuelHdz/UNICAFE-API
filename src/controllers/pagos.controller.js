@@ -30,8 +30,9 @@ export const crearSessionPago = async (req, res) => {
 // Dentro de crearSessionPago en pagos.controller.js
 // Dentro de crearSessionPago en pagos.controller.js
 metadata: { 
-    // verificarToken guarda el objeto decodificado en req.usuario
-    idUsuario: String(req.usuario?.id || req.usuario?.intIdUsuario || '47'), 
+    // Asegúrate de que el nombre coincida con tu Login. 
+    // Si tu tabla usa intIdUsuario, lo más probable es que en el token se llame igual.
+    idUsuario: String(req.usuario?.intIdUsuario || req.usuario?.id || '0'), 
     carrito: JSON.stringify(productos)
 },
             success_url: `https://victormanuelhdz.github.io/UNICAFE-FRONTEND/public/mis_pedidos.html?pago=exitoso&session_id={CHECKOUT_SESSION_ID}`,
