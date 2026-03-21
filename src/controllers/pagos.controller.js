@@ -26,7 +26,11 @@ export const crearSessionPago = async (req, res) => {
             })),
             mode: 'payment',
             // Si req.usuario no existe, esto dará error. Agregamos una protección:
-            metadata: { idUsuario: req.usuario?.id || 'invitado' }, 
+            // En tu crearSessionPago
+            metadata: {
+                // Forzamos que sea un string y usamos el nombre correcto de tu objeto usuario
+                idUsuario: String(req.usuario?.id || req.usuario?.intIdUsuario || '0')
+            },
             success_url: `https://victormanuelhdz.github.io/UNICAFE-FRONTEND/public/mis_pedidos.html?pago=exitoso&session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: 'https://victormanuelhdz.github.io/UNICAFE-FRONTEND/public/menu.html'
         });
@@ -43,9 +47,9 @@ export const confirmarPago = async (req, res) => { // Agregamos req y res que fa
     try {
         // Es sessions (en plural) y session (en singular) para retrieve
         const session = await stripe.checkout.sessions.retrieve(req.params.id);
-        res.json({ 
-            status: session.payment_status, 
-            cliente: session.customer_details.name 
+        res.json({
+            status: session.payment_status,
+            cliente: session.customer_details.name
         });
     } catch (error) {
         res.status(500).json({ error: error.message });

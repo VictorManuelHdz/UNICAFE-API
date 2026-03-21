@@ -100,10 +100,10 @@ export const getPedidosUsuario = async (req, res) => {
         res.status(200).json(pedidos);
     } catch (error) {
         // CAMBIA ESTO PARA VER EL ERROR REAL:
-        res.status(500).json({ 
-            error: 'Fallo en la conexión o consulta', 
+        res.status(500).json({
+            error: 'Fallo en la conexión o consulta',
             mensajeOriginal: error.message, // <--- Esto te dirá la verdad
-            codigo: error.code 
+            codigo: error.code
         });
     }
 };
@@ -113,36 +113,37 @@ export const confirmarYRegistrarVenta = async (req, res) => {
     const { sessionId } = req.params;
 
     try {
-        // 1. Validar con Stripe
+        // 1. Recuperamos la sesión completa de Stripe usando el ID que llegó del frontend
         const session = await stripe.checkout.sessions.retrieve(sessionId);
 
         if (session.payment_status !== 'paid') {
             return res.status(400).json({ message: "El pago no ha sido completado." });
         }
 
-        // 2. Metadata: Asegúrate que 'idUsuario' se mandó desde el frontend
-        const idUsuario = session.metadata.idUsuario;
+        // 2. Extraemos los datos. Importante: idUsuario viene de metadata
+        const idUsuario = parseInt(session.metadata.idUsuario);
         const total = session.amount_total / 100;
 
-        // 3. INSERT (Ajusta los nombres a tu DB real)
-        // Ejemplo: Si tu tabla se llama 'pedidos' y usa 'idUsuario'
-        // pedidos.controller.js
+        // 3. Verificamos si el usuario es válido antes de insertar
+        if (isNaN(idUsuario)) {
+            throw new Error("ID de usuario no válido en los metadatos de la sesión");
+        }
+
+        // 4. Inserción en la tabla correcta según tu SQL
         const sql = "INSERT INTO tblpedidos (intIdUsuario, decTotal, dtmFechaHora, vchEstado, vchNotas) VALUES (?, ?, NOW(), 'Preparando', 'Pago realizado vía Stripe')";
         const [resultado] = await db.query(sql, [idUsuario, total]);
-
-        const nuevoId = resultado.insertId || resultado[0]?.insertId;
-
-        console.log("Pedido insertado con ID:", nuevoId);
 
         res.json({
             success: true,
             message: "Pedido registrado correctamente",
-            idPedido: nuevoId
+            idPedido: resultado.insertId
         });
 
     } catch (error) {
-        // Este console.log es el que debes ver en los LOGS de Vercel
-        console.error("ERROR REAL EN EL SERVIDOR:", error.message);
-        res.status(500).json({ error: error.message });
+        console.error("ERROR REAL EN VERCEL:", error.message);
+        res.status(500).json({
+            error: "Error interno al registrar el pedido",
+            detalle: error.message
+        });
     }
 };
