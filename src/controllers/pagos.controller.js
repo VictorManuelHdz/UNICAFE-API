@@ -25,20 +25,15 @@ export const crearSessionPago = async (req, res) => {
                 quantity: item.cantidad,
             })),
             mode: 'payment',
-            // Si req.usuario no existe, esto dará error. Agregamos una protección:
-            // En tu crearSessionPago
-     // ... dentro de crearSessionPago
-metadata: { 
-    // Usamos el operador ?. para evitar que el servidor truene si no hay usuario
-    idUsuario: String(req.usuario?.id || req.usuario?.intIdUsuario || '0'),
-    // OPCIONAL: También puedes guardar el carrito como texto para tu procedimiento almacenado
-    carrito: JSON.stringify(productos.map(p => ({
-        id: p.id,
-        tipo: p.tipo || 'producto',
-        cantidad: p.cantidad
-    })))
-},
-// ...
+            metadata: {
+                // Asegúrate de que esto use id o intIdUsuario según tu token
+                idUsuario: String(req.usuario?.id || req.usuario?.intIdUsuario || '0'),
+                carrito: JSON.stringify(productos.map(p => ({
+                    id: p.id,
+                    tipo: p.tipo || 'producto',
+                    cantidad: p.cantidad
+                })))
+            },
             success_url: `https://victormanuelhdz.github.io/UNICAFE-FRONTEND/public/mis_pedidos.html?pago=exitoso&session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: 'https://victormanuelhdz.github.io/UNICAFE-FRONTEND/public/menu.html'
         });
