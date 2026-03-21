@@ -27,9 +27,10 @@ export const crearSessionPago = async (req, res) => {
             mode: 'payment',
             // Si req.usuario no existe, esto dará error. Agregamos una protección:
             // En tu crearSessionPago
-            metadata: {
-                idUsuario: String(req.usuario.id || req.usuario.intIdUsuario)
-            },
+            metadata: { 
+    // Usamos el ID del token, asegurando que sea el nombre correcto (id o intIdUsuario)
+    idUsuario: String(req.usuario?.id || req.usuario?.intIdUsuario || 0) 
+},
             success_url: `https://victormanuelhdz.github.io/UNICAFE-FRONTEND/public/mis_pedidos.html?pago=exitoso&session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: 'https://victormanuelhdz.github.io/UNICAFE-FRONTEND/public/menu.html'
         });
