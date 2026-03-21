@@ -73,7 +73,7 @@ export const cambiarEstado = async (req, res) => {
 
                     await client.messages.create({
                         body: mensaje,
-                        from: 'whatsapp:+14155238886', 
+                        from: 'whatsapp:+14155238886',
                         to: `whatsapp:${telefonoAlumno}`
                     });
 
@@ -111,7 +111,7 @@ export const confirmarYRegistrarVenta = async (req, res) => {
     try {
         // 1. Validar con Stripe
         const session = await stripe.checkout.sessions.retrieve(sessionId);
-        
+
         if (session.payment_status !== 'paid') {
             return res.status(400).json({ message: "El pago no ha sido completado." });
         }
@@ -126,12 +126,14 @@ export const confirmarYRegistrarVenta = async (req, res) => {
         const sql = "INSERT INTO tblpedidos (intIdUsuario, decTotal, dtmFechaHora, vchEstado, vchNotas) VALUES (?, ?, NOW(), 'Preparando', 'Pago realizado vía Stripe')";
         const [resultado] = await db.query(sql, [idUsuario, total]);
 
-        console.log("Pedido insertado con ID:", resultado.insertId);
+        const nuevoId = resultado.insertId || resultado[0]?.insertId;
 
-        res.json({ 
-            success: true, 
+        console.log("Pedido insertado con ID:", nuevoId);
+
+        res.json({
+            success: true,
             message: "Pedido registrado correctamente",
-            idPedido: resultado.insertId 
+            idPedido: nuevoId
         });
 
     } catch (error) {
