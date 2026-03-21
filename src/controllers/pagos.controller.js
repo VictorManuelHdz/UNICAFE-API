@@ -8,7 +8,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const crearSessionPago = async (req, res) => {
     try {
+        // AÑADE ESTO PARA VER QUÉ TRAE TU TOKEN REALMENTE
+        console.log("Contenido del usuario autenticado:", req.usuario); 
+        
         const { productos } = req.body;
+        // ... resto del código
 
         // Stripe usa minúsculas para checkout: stripe.checkout, no stripe.Checkout
         const session = await stripe.checkout.sessions.create({
@@ -29,10 +33,10 @@ export const crearSessionPago = async (req, res) => {
 // pagos.controller.js
 // Dentro de crearSessionPago en pagos.controller.js
 // Dentro de crearSessionPago en pagos.controller.js
+// pagos.controller.js
 metadata: { 
-    // Asegúrate de que el nombre coincida con tu Login. 
-    // Si tu tabla usa intIdUsuario, lo más probable es que en el token se llame igual.
-    idUsuario: String(req.usuario?.intIdUsuario || req.usuario?.id || '0'), 
+    // Intentamos obtener el ID con los nombres más comunes que podrías haber usado en el login
+    idUsuario: String(req.usuario?.intIdUsuario || req.usuario?.id || req.usuario?.idUsuario || '0'), 
     carrito: JSON.stringify(productos)
 },
             success_url: `https://victormanuelhdz.github.io/UNICAFE-FRONTEND/public/mis_pedidos.html?pago=exitoso&session_id={CHECKOUT_SESSION_ID}`,
