@@ -12,6 +12,7 @@ import terminosRoutes from './routes/terminos.routes.js'
 import avisoRoutes from './routes/avisoPrivacidad.routes.js'
 import categoriaMenu from './routes/categoriaMenu.routes.js'
 import authRoutes from './routes/auth.routes.js'
+import rutasReportes from './routes/reportes.routes.js'
 
 const app = express()
 
@@ -30,6 +31,7 @@ app.use('/api/somos',somosRoutes)
 app.use('/api/terminos', terminosRoutes)
 app.use('/api/aviso', avisoRoutes)
 app.use('/api/categorias-menu', categoriaMenu)
+app.use('/api/reportes', rutasReportes)
 
 
 
