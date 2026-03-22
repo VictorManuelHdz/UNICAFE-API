@@ -21,25 +21,28 @@ export const getPedidos = async () => {
 
 // Obtener un pedido específico con TODO su detalle
 export const getPedidoById = async (id) => {
-    const [pedidoInfo] = await db.query(`
+    const [rows] = await db.query(`
         SELECT p.*, u.vchNombres, u.vchApaterno, u.vchTelefono
         FROM tblpedidos p
         JOIN tblusuario u ON p.intIdUsuario = u.intIdUsuario
         WHERE p.intIdPedido = ?`, [id]);
 
-    if (pedidoInfo.length === 0) return null;
+    // Verificamos si el arreglo tiene datos
+    if (!rows || rows.length === 0) return null;
+
+    const pedidoPrincipal = rows[0];
 
     const [articulos] = await db.query(`
         SELECT d.*, 
-                pr.vchNombre AS nombreProducto, 
-                m.vchNombre AS nombrePlatillo
+               pr.vchNombre AS nombreProducto, 
+               m.vchNombre AS nombrePlatillo
         FROM tbldetalle_pedido d
         LEFT JOIN tblproductos pr ON d.intIdProducto = pr.intIdProducto
         LEFT JOIN tblmenu m ON d.intIdPlatillo = m.intIdPlatillo
         WHERE d.intIdPedido = ?`, [id]);
 
     return {
-        info: pedidoInfo[0],
+        info: pedidoPrincipal,
         articulos: articulos
     };
 };

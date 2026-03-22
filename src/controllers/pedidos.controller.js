@@ -1,5 +1,8 @@
 import twilio from 'twilio';
 import * as pedidosModelo from '../models/pedidos.model.js';
+import Stripe from 'stripe';
+import { db } from '../config/database.js'; // O como se llame tu conexión
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -70,7 +73,7 @@ export const cambiarEstado = async (req, res) => {
 
                     await client.messages.create({
                         body: mensaje,
-                        from: 'whatsapp:+14155238886', 
+                        from: 'whatsapp:+14155238886',
                         to: `whatsapp:${telefonoAlumno}`
                     });
 
@@ -96,7 +99,39 @@ export const getPedidosUsuario = async (req, res) => {
         const pedidos = await pedidosModelo.getPedidosByUsuarioId(id);
         res.status(200).json(pedidos);
     } catch (error) {
-        console.error("Error al obtener pedidos del usuario:", error);
-        res.status(500).json({ error: 'Error interno del servidor' });
+        // CAMBIA ESTO PARA VER EL ERROR REAL:
+        res.status(500).json({
+            error: 'Fallo en la conexión o consulta',
+            mensajeOriginal: error.message, // <--- Esto te dirá la verdad
+            codigo: error.code
+        });
+    }
+};
+
+
+// pedidos.controller.js
+// pedidos.controller.js
+// pedidos.controller.js
+export const confirmarYRegistrarVenta = async (req, res) => {
+    const { sessionId } = req.params;
+    try {
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+        const idUsuario = parseInt(session.metadata.idUsuario);
+        const total = parseFloat(session.amount_total / 100);
+
+        // Si el ID es 0 o no es un número, lanzamos error antes de tocar la DB
+        if (!idUsuario || isNaN(idUsuario) || idUsuario === 0) {
+            return res.status(200).json({ 
+                success: false, 
+                detalle: `ID de usuario inválido recuperado: ${session.metadata.idUsuario}` 
+            });
+        }
+
+        const sql = "INSERT INTO tblpedidos (intIdUsuario, decTotal, dtmFechaHora, vchEstado) VALUES (?, ?, NOW(), 'Preparando')";
+        const [resultado] = await db.query(sql, [idUsuario, total]);
+
+        res.json({ success: true, idPedido: resultado.insertId });
+    } catch (error) {
+        res.status(200).json({ success: false, detalle: error.message });
     }
 };
