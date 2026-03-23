@@ -1,12 +1,7 @@
-import twilio from 'twilio';
 import * as pedidosModelo from '../models/pedidos.model.js';
 import Stripe from 'stripe';
-import { db } from '../config/database.js'; // O como se llame tu conexión
+import { db } from '../config/database.js';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-const client = twilio(accountSid, authToken);
 
 export const getAllPedidos = async (req, res) => {
     try {
@@ -67,27 +62,32 @@ export const cambiarEstado = async (req, res) => {
                 const pedido = await pedidosModelo.getPedidoById(id);
 
                 if (pedido && pedido.info.vchTelefono) {
-                    const telefonoAlumno = `+52${pedido.info.vchTelefono}`;
+                    const chatId = `52${pedido.info.vchTelefono}@c.us`; 
 
                     const mensaje = `¡Hola ${pedido.info.vchNombres}! ☕ Tu pedido #${id} en Cafetería UTHH está ${estado.toUpperCase()}. Pasa a ventanilla a recogerlo.`;
 
-                    await client.messages.create({
-                        body: mensaje,
-                        from: 'whatsapp:+14155238886',
-                        to: `whatsapp:${telefonoAlumno}`
+                    const urlGreenApi = `${process.env.GREEN_API_URL}/waInstance${process.env.GREEN_API_ID}/sendMessage/${process.env.GREEN_API_TOKEN}`;
+
+                    const greenRes = await fetch(urlGreenApi, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chatId: chatId,
+                            message: mensaje
+                        })
                     });
 
-                    console.log(`WhatsApp enviado exitosamente a ${telefonoAlumno}`);
+                    if (greenRes.ok) {
+                        console.log(`WhatsApp enviado exitosamente al alumno: ${pedido.info.vchTelefono}`);
+                    } else {
+                        const errorData = await greenRes.json();
+                        console.error("Fallo al enviar WhatsApp por Green API:", errorData);
+                    }
                 }
-            } catch (twilioError) {
-                console.error("Error completo de Twilio:", twilioError);
-                console.error("Código de error:", twilioError.code);
-                
-                // Si Twilio falla (ej. número no válido), no rompemos la API, solo avisamos en consola
-                //console.error("Error al enviar el WhatsApp:", twilioError.message);
+            } catch (whatsAppError) {
+                console.error("Excepción al intentar enviar el WhatsApp:", whatsAppError.message);
             }
         }
-        // -------------------------------------------------------------
 
         res.status(200).json({ message: 'Estado actualizado correctamente' });
     } catch (error) {
@@ -102,19 +102,14 @@ export const getPedidosUsuario = async (req, res) => {
         const pedidos = await pedidosModelo.getPedidosByUsuarioId(id);
         res.status(200).json(pedidos);
     } catch (error) {
-        // CAMBIA ESTO PARA VER EL ERROR REAL:
         res.status(500).json({
             error: 'Fallo en la conexión o consulta',
-            mensajeOriginal: error.message, // <--- Esto te dirá la verdad
+            mensajeOriginal: error.message,
             codigo: error.code
         });
     }
 };
 
-
-// pedidos.controller.js
-// pedidos.controller.js
-// pedidos.controller.js
 export const confirmarYRegistrarVenta = async (req, res) => {
     const { sessionId } = req.params;
     try {
@@ -122,7 +117,6 @@ export const confirmarYRegistrarVenta = async (req, res) => {
         const idUsuario = parseInt(session.metadata.idUsuario);
         const total = parseFloat(session.amount_total / 100);
 
-        // Si el ID es 0 o no es un número, lanzamos error antes de tocar la DB
         if (!idUsuario || isNaN(idUsuario) || idUsuario === 0) {
             return res.status(200).json({ 
                 success: false, 
