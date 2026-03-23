@@ -80,8 +80,11 @@ export const cambiarEstado = async (req, res) => {
                     console.log(`WhatsApp enviado exitosamente a ${telefonoAlumno}`);
                 }
             } catch (twilioError) {
+                console.error("Error completo de Twilio:", twilioError);
+                console.error("Código de error:", twilioError.code);
+                
                 // Si Twilio falla (ej. número no válido), no rompemos la API, solo avisamos en consola
-                console.error("Error al enviar el WhatsApp:", twilioError.message);
+                //console.error("Error al enviar el WhatsApp:", twilioError.message);
             }
         }
         // -------------------------------------------------------------
