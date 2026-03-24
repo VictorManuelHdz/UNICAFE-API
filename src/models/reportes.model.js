@@ -41,7 +41,7 @@ export const obtenerVentasActualesDB = async () => {
 
 export const obtenerTopProductosDB = async () => {
     // Une los detalles de pedido con Productos y Menú para saber qué es lo que más se vende
-    const [rows] = await pool.query(`
+    const [rows] = await db.query(`
         SELECT 
             COALESCE(p.vchNombre, m.vchNombre) AS nombre_articulo,
             SUM(dp.intCantidad) AS total_vendido
