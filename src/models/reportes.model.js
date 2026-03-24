@@ -38,3 +38,21 @@ export const obtenerVentasActualesDB = async () => {
     `);
     return rows[0].total_ventas;
 };
+
+export const obtenerTopProductosDB = async () => {
+    // Une los detalles de pedido con Productos y Menú para saber qué es lo que más se vende
+    const [rows] = await pool.query(`
+        SELECT 
+            COALESCE(p.vchNombre, m.vchNombre) AS nombre_articulo,
+            SUM(dp.intCantidad) AS total_vendido
+        FROM tbldetalle_pedido dp
+        INNER JOIN tblpedidos ped ON dp.intIdPedido = ped.intIdPedido
+        LEFT JOIN tblproductos p ON dp.intIdProducto = p.intIdProducto
+        LEFT JOIN tblmenu m ON dp.intIdPlatillo = m.intIdPlatillo
+        WHERE ped.vchEstado = 'Entregado'
+        GROUP BY nombre_articulo
+        ORDER BY total_vendido DESC
+        LIMIT 5
+    `);
+    return rows;
+};

@@ -12,7 +12,7 @@ export const obtenerDashboard = async (req, res) => {
 
 //Funcion para el modelo predictivo
 
-export const calcularModeloPredictivo = (req, res) => {
+export const calcularModeloPredictivo = async(req, res) => {
     try {
         // Recibimos los datos del frontend 
         const x0 = parseFloat(req.body.ventasIniciales) || 26;
@@ -49,7 +49,27 @@ export const calcularModeloPredictivo = (req, res) => {
             ventasAnteriores = ventas;
         }
 
-        // Responder con el JSON estructurado
+        const topProductos = await reportesmodelo.obtenerTopProductosDB();
+        
+        // Calcular el total de artículos individuales vendidos en ese top 5
+        const totalTopVendidos = topProductos.reduce((acc, curr) => acc + Number(curr.total_vendido), 0);
+
+        // Generar el desglose calculando su proyección proporcional
+        const proyeccionInsumos = topProductos.map(prod => {
+            const cantidadActual = Number(prod.total_vendido);
+            const porcentaje = cantidadActual / totalTopVendidos;
+            
+            return {
+                articulo: prod.nombre_articulo,
+                cantidadBase: cantidadActual,
+                porcentajePopularidad: (porcentaje * 100).toFixed(1),
+                // Aplicamos el crecimiento exponencial de la cafetería a este producto específico
+                demandaProyectada: Math.round(ventasProyectadas * porcentaje),
+                incrementoNeto: Math.round(ventasProyectadas * porcentaje) - cantidadActual
+            };
+        });
+
+        // Responder con el JSON estructurado (añade proyeccionInsumos al final)
         res.status(200).json({
             success: true,
             parametros: { x0, td, tProyeccion, k },
@@ -59,7 +79,8 @@ export const calcularModeloPredictivo = (req, res) => {
                 promedioMensual: totalAcumulado / (maxMeses + 1),
                 factorCrecimiento: proyecciones[maxMeses].ventas / x0
             },
-            proyecciones
+            proyecciones,
+            insumos: proyeccionInsumos // <-- ESTO ES LO NUEVO
         });
 
     } catch (error) {
