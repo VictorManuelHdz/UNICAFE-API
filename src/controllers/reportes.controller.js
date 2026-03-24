@@ -10,11 +10,11 @@ export const obtenerDashboard = async (req, res) => {
     }
 };
 
-// controllers/reportes.controller.js
+//Funcion para el modelo predictivo
 
 export const calcularModeloPredictivo = (req, res) => {
     try {
-        // Recibimos los datos del frontend (o usamos valores por defecto)
+        // Recibimos los datos del frontend 
         const x0 = parseFloat(req.body.ventasIniciales) || 26;
         const td = parseFloat(req.body.tiempoDuplicacion) || 2; // Tiempo en que se duplica
         const tProyeccion = parseFloat(req.body.tiempoProyeccion) || 6;

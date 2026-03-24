@@ -4,10 +4,8 @@ import * as ctrl from '../controllers/reportes.controller.js';
 
 const ruta = Router();
 
-// Endpoint original: /api/reportes/dashboard
-ruta.get('/dashboard', ctrl.obtenerDashboard);
 
-// Ruta NUEVA para el modelo predictivo
+ruta.get('/dashboard', ctrl.obtenerDashboard);
 ruta.post('/predictivo', ctrl.calcularModeloPredictivo);
 
 export default ruta;
