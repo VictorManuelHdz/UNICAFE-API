@@ -15,6 +15,7 @@ import authRoutes from './routes/auth.routes.js'
 import pagosRoutes from './routes/pagos.routes.js'
 import rutasReportes from './routes/reportes.routes.js'
 
+
 const app = express()
 
 
