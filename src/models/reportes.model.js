@@ -28,3 +28,13 @@ export const getDashboardData = async () => {
         sugerenciasCompra: sugerenciasRows[0] 
     };
 };
+
+export const obtenerVentasActualesDB = async () => {
+    // Contamos todos los pedidos exitosos para usarlos como x0
+    const [rows] = await db.query(`
+        SELECT COUNT(intIdPedido) as total_ventas 
+        FROM tblpedidos 
+        WHERE vchEstado = 'Entregado'
+    `);
+    return rows[0].total_ventas;
+};

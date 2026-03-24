@@ -67,3 +67,12 @@ export const calcularModeloPredictivo = (req, res) => {
         res.status(500).json({ success: false, error: 'Error al calcular la predicción.' });
     }
 };
+
+export const obtenerVentasReales = async (req, res) => {
+    try {
+        const totalVentas = await reportesmodelo.obtenerVentasActualesDB();
+        res.status(200).json({ success: true, ventasBase: totalVentas });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Error al consultar BD' });
+    }
+};

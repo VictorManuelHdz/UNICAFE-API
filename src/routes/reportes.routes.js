@@ -7,5 +7,6 @@ const ruta = Router();
 
 ruta.get('/dashboard', ctrl.obtenerDashboard);
 ruta.post('/predictivo', ctrl.calcularModeloPredictivo);
+ruta.get('/ventas-actuales', ctrl.obtenerVentasReales);
 
 export default ruta;
