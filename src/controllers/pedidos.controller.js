@@ -112,6 +112,8 @@ export const getPedidosUsuario = async (req, res) => {
 
 export const confirmarYRegistrarVenta = async (req, res) => {
     const { sessionId } = req.params;
+    const { carrito } = req.body;
+
     try {
         const session = await stripe.checkout.sessions.retrieve(sessionId);
         const idUsuario = parseInt(session.metadata.idUsuario);
@@ -124,11 +126,19 @@ export const confirmarYRegistrarVenta = async (req, res) => {
             });
         }
 
-        const sql = "INSERT INTO tblpedidos (intIdUsuario, decTotal, dtmFechaHora, vchEstado) VALUES (?, ?, NOW(), 'Preparando')";
-        const [resultado] = await db.query(sql, [idUsuario, total]);
+        if (!carrito || carrito.length === 0) {
+            return res.status(200).json({ success: false, detalle: "El carrito está vacío o se perdió en el proceso." });
+        }
 
-        res.json({ success: true, idPedido: resultado.insertId });
+        const carritoJSON = JSON.stringify(carrito);
+        const [result] = await db.query(
+            'CALL sp_crear_pedido(?, ?, ?, ?)',
+            [idUsuario, total, null, carritoJSON]
+        );
+
+        res.json({ success: true, idPedido: result[0][0].folio });
     } catch (error) {
+        console.error(error);
         res.status(200).json({ success: false, detalle: error.message });
     }
 };
