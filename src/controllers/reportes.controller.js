@@ -14,15 +14,15 @@ export const obtenerDashboard = async (req, res) => {
 
 export const calcularModeloPredictivo = async (req, res) => {
     try {
-        // Renombramos x0 por C para alinearlo con la Ley de Crecimiento
+        // Se declaran los datos requeridos deacuedo a lo que envia el usuarios, de o contrario se agregan datos por defecto
         const C = parseFloat(req.body.ventasIniciales) || 26;
         const td = parseFloat(req.body.tiempoDuplicacion) || 2;
         const tProyeccion = parseFloat(req.body.tiempoProyeccion) || 6;
 
-        // 1. Cálculo de la constante K (ln(2) / tiempo de duplicación)
+        //Cálculo de la constante K (ln(2) / tiempo de duplicación)
         const k = Math.log(2) / td;
 
-        // 2. Cálculo de la proyección usando x = C * e^(kt)
+        //Cálculo de la proyección usando x = C * e^(kt)
         const ventasProyectadas = C * Math.exp(k * tProyeccion);
 
         const proyecciones = [];
@@ -30,8 +30,8 @@ export const calcularModeloPredictivo = async (req, res) => {
         let totalAcumulado = 0;
         const maxMeses = Math.max(12, tProyeccion + 2);
 
+        //Utiliza el ciclo para predecir el aumento de las ventas en meses posteriores
         for (let mes = 0; mes <= maxMeses; mes++) {
-            // Aplicamos la fórmula: x = C * e^(kt)
             const ventasExactas = C * Math.exp(k * mes);
             const ventas = Math.round(ventasExactas);
             const incremento = mes === 0 ? 0 : ventas - ventasAnteriores;
@@ -48,7 +48,7 @@ export const calcularModeloPredictivo = async (req, res) => {
             totalAcumulado += ventas;
             ventasAnteriores = ventas;
         }
-
+        //llama a la base de datos
         const topProductos = await reportesmodelo.obtenerTopProductosDB();
 
         // Calcular el total de artículos individuales vendidos en ese top 5
@@ -72,7 +72,7 @@ export const calcularModeloPredictivo = async (req, res) => {
         // Responder con el JSON estructurado 
         res.status(200).json({
             success: true,
-            parametros: { C, td, tProyeccion, k }, // Enviamos C al frontend
+            parametros: { C, td, tProyeccion, k },
             resultados: {
                 ventasProyectadas,
                 totalAcumulado,
