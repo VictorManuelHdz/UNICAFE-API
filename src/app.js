@@ -26,11 +26,11 @@ app.use('/api/auth', authRoutes)
 app.use('/api/productos', productosRoutes)
 app.use('/api/usuarios', usuariosRoutes)
 app.use('/api/menu', menuRoutes)
-app.use('/api/categorias',categoriasRoutes )
+app.use('/api/categorias', categoriasRoutes)
 app.use('/api/proveedores', proveedoresRoutes)
 app.use('/api/roles', rolesRoutes)
 app.use('/api/pedidos', pedidosRoutes)
-app.use('/api/somos',somosRoutes)
+app.use('/api/somos', somosRoutes)
 app.use('/api/terminos', terminosRoutes)
 app.use('/api/aviso', avisoRoutes)
 app.use('/api/categorias-menu', categoriaMenu)
@@ -38,12 +38,16 @@ app.use('/api/pagos', pagosRoutes)
 app.use('/api/reportes', rutasReportes)
 
 
-const PORT =3000
+const PORT = 3000
 
-app.get('/',(req,res)=>{
+app.get('/', (req, res) => {
     res.send("Api desde express")
 })
-app.listen(PORT,()=>{
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(PORT, () => {
 
-    console.log(`Servidor corriendo en el puerto ${PORT}`)
-})
+        console.log(`Servidor corriendo en el puerto ${PORT}`)
+    })
+}
+
+export default app;
