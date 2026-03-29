@@ -39,7 +39,13 @@ export const crearUsuario = async (req, res) => {
         const nuevo = await usuariosmodelo.crearUsuario(datosConHash);
         res.status(201).json(nuevo);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        const timestamp = new Date().toISOString();
+        console.error(`[${timestamp}] ERROR CRÍTICO DB (crearProducto):`, error.stack || error.message);
+
+        res.status(500).json({
+            message: 'Ocurrió un error interno al intentar guardar el usuario. Por favor, inténtelo más tarde.',
+            status: 'error'
+        });
     }
 };
 
@@ -115,7 +121,7 @@ export const registrarCliente = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const passwordEncriptada = await bcrypt.hash(password, salt);
 
-        // FORZAMOS EL ROL A 3 (Cliente) EN EL BACKEND PARA EVITAR HACKEOS
+        // FORZAMOS EL ROL A 3 (Cliente)
         const datosConHash = {
             ...req.body,
             password: passwordEncriptada,
@@ -125,6 +131,12 @@ export const registrarCliente = async (req, res) => {
         const nuevo = await usuariosmodelo.crearUsuario(datosConHash);
         res.status(201).json(nuevo);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        const timestamp = new Date().toISOString();
+        console.error(`[${timestamp}] ERROR CRÍTICO DB (crearProducto):`, error.stack || error.message);
+
+        res.status(500).json({
+            message: 'Ocurrió un error interno al intentar registrar al usuario. Por favor, inténtelo más tarde.',
+            status: 'error'
+        });
     }
 };

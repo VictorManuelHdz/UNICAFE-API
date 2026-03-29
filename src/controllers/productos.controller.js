@@ -40,7 +40,13 @@ export const crearProducto = async(req, res)=>{
         const nuevo = await productosmodelo.crearProducto(req.body)
         res.status(201).json(nuevo)
     } catch (error) {
-        res.status(500).json({error: error.message})
+        const timestamp = new Date().toISOString();
+        console.error(`[${timestamp}] ERROR CRÍTICO DB (crearProducto):`, error.stack || error.message);
+
+        res.status(500).json({
+            message: 'Ocurrió un error interno al intentar guardar el producto. Por favor, inténtelo más tarde.',
+            status: 'error'
+        });
     }
 }
 
