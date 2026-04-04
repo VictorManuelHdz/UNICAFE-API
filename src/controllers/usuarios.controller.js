@@ -12,7 +12,13 @@ export const getAllUsuarios = async (req, res) => {
 
 export const getUsuario = async (req, res) => {
     try {
-        const usuario = await usuariosmodelo.getUsuario(req.params.id);
+        const idSolicitado = parseInt(req.params.id);
+        
+        if (req.usuario && idSolicitado !== req.usuario.id && req.usuario.rol !== 1) {
+            return res.status(403).json({ message: 'Uso indebido del sistema: No tienes permiso para ver perfiles ajenos.' });
+        }
+
+        const usuario = await usuariosmodelo.getUsuario(idSolicitado);
         if (!usuario) return res.status(404).json({ message: 'Usuario no encontrado' });
         res.status(200).json(usuario);
     } catch (error) {
@@ -52,11 +58,16 @@ export const crearUsuario = async (req, res) => {
 
 export const actualizarUsuario = async (req, res) => {
     try {
-        const { id } = req.params;
+        const idSolicitado = parseInt(req.params.id);
+        
+        if (req.usuario && idSolicitado !== req.usuario.id && req.usuario.rol !== 1) {
+            return res.status(403).json({ message: 'Uso indebido del sistema detectado. Esta acción será reportada.' });
+        }
+
         const datosActualizar = { ...req.body };
 
         // Validación inicial
-        if (!id || Object.keys(datosActualizar).length === 0) {
+        if (!idSolicitado || Object.keys(datosActualizar).length === 0) {
             return res.status(400).json({ message: 'ID y al menos un campo son requeridos' });
         }
 
@@ -67,11 +78,7 @@ export const actualizarUsuario = async (req, res) => {
             delete datosActualizar.password;
         }
 
-        if (Object.keys(datosActualizar).length === 0) {
-            return res.status(400).json({ message: 'No hay datos válidos para actualizar' });
-        }
-
-        const resultado = await usuariosmodelo.actualizarUsuario(id, datosActualizar);
+        const resultado = await usuariosmodelo.actualizarUsuario(idSolicitado, datosActualizar);
 
         if (resultado.affectedRows === 0) {
             return res.status(404).json({ message: 'Usuario no encontrado' });
