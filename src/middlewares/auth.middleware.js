@@ -19,14 +19,19 @@ export const verificarToken = (req, res, next) =>{
 } 
 
 export const verificarRolAdmin = (req, res, next) => {
-    if (!req.usuario) {
-        return res.status(401).json({ message: 'Usuario no autenticado' });
-    }
-
-    // El rol 1 es Admin. Si no es 1, le negamos la entrada
+    if (!req.usuario) return res.status(401).json({ message: 'No autenticado' });
+    
     if (req.usuario.rol !== 1) {
-        return res.status(403).json({ message: 'Acceso denegado: Se requieren permisos de Administrador.' });
+        return res.status(403).json({ message: 'Acceso denegado: Solo Administradores.' });
     }
+    next();
+};
 
+export const verificarRolEmpleadoOAdmin = (req, res, next) => {
+    if (!req.usuario) return res.status(401).json({ message: 'No autenticado' });
+    
+    if (req.usuario.rol !== 1 && req.usuario.rol !== 2) {
+        return res.status(403).json({ message: 'Acceso denegado: Se requiere nivel de Empleado o Superior.' });
+    }
     next();
 };

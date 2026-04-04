@@ -1,5 +1,6 @@
 import {Router} from 'express'
 import { verificarToken } from '../middlewares/auth.middleware.js'
+import { verificarRolAdmin } from '../middlewares/auth.middleware.js'
 import * as ctrl from '../controllers/usuarios.controller.js'
 
 const ruta= Router()
@@ -8,11 +9,11 @@ const ruta= Router()
 ruta.post('/registro', ctrl.registrarCliente)
 ruta.get('/test/verificar-hash', ctrl.verificarHashTest)
 
-// Rutas Privadas con autenticación
-ruta.get('/', verificarToken, ctrl.getAllUsuarios)
-ruta.get('/:id', verificarToken, ctrl.getUsuario)  
-ruta.post('/', verificarToken, ctrl.crearUsuario)
-ruta.put('/:id', verificarToken, ctrl.actualizarUsuario)
-ruta.delete('/:id', verificarToken, ctrl.eliminarUsuario)
+// Rutas Privadas (¡SOLO ADMIN!)
+ruta.get('/', verificarToken, verificarRolAdmin, ctrl.getAllUsuarios)
+ruta.get('/:id', verificarToken, verificarRolAdmin, ctrl.getUsuario)  
+ruta.post('/', verificarToken, verificarRolAdmin, ctrl.crearUsuario)
+ruta.put('/:id', verificarToken, verificarRolAdmin, ctrl.actualizarUsuario)
+ruta.delete('/:id', verificarToken, verificarRolAdmin, ctrl.eliminarUsuario)
 
 export default ruta
