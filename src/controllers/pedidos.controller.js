@@ -20,6 +20,14 @@ export const getPedido = async (req, res) => {
         if (!pedido) {
             return res.status(404).json({ message: 'Pedido no encontrado' });
         }
+
+        if (!pedido.articulos || pedido.articulos.length === 0) {
+            return res.status(409).json({
+                error: 'Inconsistencia de datos detectada',
+                message: `ALERTA: El pedido #${id} no contiene artículos. La integridad del registro ha sido comprometida en la base de datos.`
+            });
+        }
+
         res.status(200).json(pedido);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -62,7 +70,7 @@ export const cambiarEstado = async (req, res) => {
                 const pedido = await pedidosModelo.getPedidoById(id);
 
                 if (pedido && pedido.info.vchTelefono) {
-                    const chatId = `521${pedido.info.vchTelefono}@c.us`; 
+                    const chatId = `521${pedido.info.vchTelefono}@c.us`;
 
                     const mensaje = `¡Hola ${pedido.info.vchNombres}! ☕ Tu pedido #${id} en Cafetería UTHH está ${estado.toUpperCase()}. Pasa a ventanilla a recogerlo.`;
 
@@ -120,9 +128,9 @@ export const confirmarYRegistrarVenta = async (req, res) => {
         const total = parseFloat(session.amount_total / 100);
 
         if (!idUsuario || isNaN(idUsuario) || idUsuario === 0) {
-            return res.status(200).json({ 
-                success: false, 
-                detalle: `ID de usuario inválido recuperado: ${session.metadata.idUsuario}` 
+            return res.status(200).json({
+                success: false,
+                detalle: `ID de usuario inválido recuperado: ${session.metadata.idUsuario}`
             });
         }
 
