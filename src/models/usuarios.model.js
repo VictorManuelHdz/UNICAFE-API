@@ -32,13 +32,26 @@ export const getUsuario = async (id) => {
     return rows[0];
 };
 
-// Mantenemos tu lógica de desestructuración con valores por defecto (|| null)
 export const crearUsuario = async ({ nombres, apellidoPaterno, apellidoMaterno, telefono, correo, direccion, password, rol }) => {
-    const [result] = await db.query(
-        'INSERT INTO tblusuario (vchNombres, vchApaterno, vchAmaterno, vchTelefono, vchCorreo, vchDireccion, vchPassword, intIdRol) values(?,?,?,?,?,?,?,?)',
-        [nombres, apellidoPaterno, apellidoMaterno, telefono, correo, direccion, password, rol]
-    );
-    return { id: result.insertId, nombres, apellidoPaterno, correo };
+    const conexion = await db.getConnection(); 
+    
+    try {
+        await conexion.beginTransaction(); 
+        
+        const [result] = await conexion.query(
+            'INSERT INTO tblusuario (vchNombres, vchApaterno, vchAmaterno, vchTelefono, vchCorreo, vchDireccion, vchPassword, intIdRol) values(?,?,?,?,?,?,?,?)',
+            [nombres, apellidoPaterno, apellidoMaterno, telefono, correo, direccion, password, rol]
+        );
+        
+        await conexion.commit(); 
+        
+        return { id: result.insertId, nombres, apellidoPaterno, correo };
+    } catch (error) {
+        await conexion.rollback(); 
+        throw error;
+    } finally {
+        conexion.release(); 
+    }
 };
 
 // Mantenemos la lógica dinámica pero traduciendo las llaves para proteger la DB
