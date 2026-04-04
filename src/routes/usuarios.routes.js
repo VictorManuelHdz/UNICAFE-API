@@ -13,6 +13,8 @@ ruta.get('/test/verificar-hash', ctrl.verificarHashTest)
 ruta.get('/', verificarToken, verificarRolAdmin, ctrl.getAllUsuarios)
 ruta.post('/', verificarToken, verificarRolAdmin, ctrl.crearUsuario)
 ruta.delete('/:id', verificarToken, verificarRolAdmin, ctrl.eliminarUsuario)
+
+// Rutas Mixtas
 ruta.get('/:id', verificarToken, ctrl.getUsuario)  
 ruta.put('/:id', verificarToken, ctrl.actualizarUsuario)
 
