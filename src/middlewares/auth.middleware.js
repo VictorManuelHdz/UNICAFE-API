@@ -17,3 +17,16 @@ export const verificarToken = (req, res, next) =>{
         res.status(403).json({message: 'token no valido o expirado'})
     }
 } 
+
+export const verificarRolAdmin = (req, res, next) => {
+    if (!req.usuario) {
+        return res.status(401).json({ message: 'Usuario no autenticado' });
+    }
+
+    // El rol 1 es Admin. Si no es 1, le negamos la entrada
+    if (req.usuario.rol !== 1) {
+        return res.status(403).json({ message: 'Acceso denegado: Se requieren permisos de Administrador.' });
+    }
+
+    next();
+};
