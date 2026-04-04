@@ -11,9 +11,9 @@ ruta.get('/test/verificar-hash', ctrl.verificarHashTest)
 
 // Rutas Privadas (¡SOLO ADMIN!)
 ruta.get('/', verificarToken, verificarRolAdmin, ctrl.getAllUsuarios)
-ruta.get('/:id', verificarToken, verificarRolAdmin, ctrl.getUsuario)  
 ruta.post('/', verificarToken, verificarRolAdmin, ctrl.crearUsuario)
-ruta.put('/:id', verificarToken, verificarRolAdmin, ctrl.actualizarUsuario)
 ruta.delete('/:id', verificarToken, verificarRolAdmin, ctrl.eliminarUsuario)
+ruta.get('/:id', verificarToken, ctrl.getUsuario)  
+ruta.put('/:id', verificarToken, ctrl.actualizarUsuario)
 
 export default ruta
