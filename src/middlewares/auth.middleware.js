@@ -11,12 +11,26 @@ export const verificarToken = (req, res, next) =>{
 
     try {
         const verificado = jwt.verify(token, process.env.JWT_SECRET)
+        
+        const currentIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip || 'IP_Desconocida';
+        const currentUserAgent = req.headers['user-agent'] || 'Navegador_Desconocido';
+
+        // Comparamos si coinciden con los que se sellaron el día del Login
+        if (verificado.ip !== currentIp || verificado.userAgent !== currentUserAgent) {
+            // Si no coinciden, es un clon o un robo de token. Rechazamos el acceso.
+            return res.status(403).json({ 
+                message: 'Anomalía de sesión detectada. Por seguridad, inicie sesión nuevamente.' 
+            });
+        }
+
         req.usuario = verificado
         next();
     } catch (error) {
         res.status(403).json({message: 'token no valido o expirado'})
     }
 } 
+
+// ... (Aquí dejas tus funciones verificarRolAdmin y verificarRolEmpleadoOAdmin tal como están) ...
 
 export const verificarRolAdmin = (req, res, next) => {
     if (!req.usuario) return res.status(401).json({ message: 'No autenticado' });
