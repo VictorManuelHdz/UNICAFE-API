@@ -15,6 +15,7 @@ export const crearAviso = async (req, res) => {
         if (!contenido) {
             return res.status(400).json({ message: 'El contenido del aviso es requerido' });
         }
+        
         const nuevo = await avisoModelo.crearAviso(req.body);
         res.status(201).json(nuevo);
     } catch (error) {

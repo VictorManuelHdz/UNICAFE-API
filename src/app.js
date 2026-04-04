@@ -50,4 +50,14 @@ if (process.env.NODE_ENV !== 'test') {
     })
 }
 
+app.use((err, req, res, next) => {
+    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+        return res.status(400).json({
+            status: 'error',
+            message: 'Invalid JSON. La estructura de los datos enviados es incorrecta o está malformada.'
+        });
+    }
+    next(err);
+});
+
 export default app;
