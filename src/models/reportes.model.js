@@ -39,8 +39,8 @@ export const obtenerVentasActualesDB = async () => {
     return rows[0].total_ventas;
 };
 
+// reportes.model.js
 export const obtenerTodosLosProductosDB = async () => {
-    // Eliminamos el LIMIT 5 para traer todo el catálogo con ventas
     const [rows] = await db.query(`
         SELECT 
             COALESCE(p.vchNombre, m.vchNombre) AS nombre_articulo,
@@ -52,6 +52,6 @@ export const obtenerTodosLosProductosDB = async () => {
         WHERE ped.vchEstado = 'Entregado'
         GROUP BY nombre_articulo
         ORDER BY total_vendido DESC
-    `); // <--- Se eliminó el LIMIT 5
+    `);
     return rows;
 };
