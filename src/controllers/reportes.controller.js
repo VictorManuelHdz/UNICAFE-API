@@ -48,39 +48,32 @@ export const calcularModeloPredictivo = async (req, res) => {
             totalAcumulado += ventas;
             ventasAnteriores = ventas;
         }
-        //llama a la base de datos
-        const topProductos = await reportesmodelo.obtenerTopProductosDB();
+        // Dentro de calcularModeloPredictivo...
 
-        // Calcular el total de artículos individuales vendidos en ese top 5
-        const totalTopVendidos = topProductos.reduce((acc, curr) => acc + Number(curr.total_vendido), 0);
+        // 1. Cambiar la llamada al modelo
+        const todosLosProductos = await reportesmodelo.obtenerTodosLosProductosDB();
 
-        // Generar el desglose calculando su proyección proporcional
-        const proyeccionInsumos = topProductos.map(prod => {
+        // 2. Calcular el total global de unidades vendidas de todos los productos
+        const totalGlobalVendido = todosLosProductos.reduce((acc, curr) => acc + Number(curr.total_vendido), 0);
+
+        // 3. Generar el desglose para la lista completa
+        const proyeccionInsumos = todosLosProductos.map(prod => {
             const cantidadActual = Number(prod.total_vendido);
-            const porcentaje = cantidadActual / totalTopVendidos;
+
+            // Proporción de este producto respecto al total histórico
+            const porcentajeParticipacion = cantidadActual / totalGlobalVendido;
+
+            // Aplicamos el crecimiento exponencial basado en su peso en la demanda
+            const demandaEstimada = Math.round(ventasProyectadas * porcentajeParticipacion);
 
             return {
                 articulo: prod.nombre_articulo,
                 cantidadBase: cantidadActual,
-                porcentajePopularidad: (porcentaje * 100).toFixed(1),
-                // Aplicamos el crecimiento exponencial de la cafetería a este producto específico
-                demandaProyectada: Math.round(ventasProyectadas * porcentaje),
-                incrementoNeto: Math.round(ventasProyectadas * porcentaje) - cantidadActual
+                porcentajePopularidad: (porcentajeParticipacion * 100).toFixed(1),
+                demandaProyectada: demandaEstimada,
+                // Estimación de cuánto pedir (Diferencia entre futuro y presente)
+                incrementoNeto: demandaEstimada - cantidadActual
             };
-        });
-
-        // Responder con el JSON estructurado 
-        res.status(200).json({
-            success: true,
-            parametros: { C, td, tProyeccion, k },
-            resultados: {
-                ventasProyectadas,
-                totalAcumulado,
-                promedioMensual: totalAcumulado / (maxMeses + 1),
-                factorCrecimiento: proyecciones[maxMeses].ventas / C
-            },
-            proyecciones,
-            insumos: proyeccionInsumos
         });
 
     } catch (error) {

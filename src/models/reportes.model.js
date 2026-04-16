@@ -39,8 +39,8 @@ export const obtenerVentasActualesDB = async () => {
     return rows[0].total_ventas;
 };
 
-export const obtenerTopProductosDB = async () => {
-    // Une los detalles de pedido con Productos y Menú para saber qué es lo que más se vende
+export const obtenerTodosLosProductosDB = async () => {
+    // Eliminamos el LIMIT 5 para traer todo el catálogo con ventas
     const [rows] = await db.query(`
         SELECT 
             COALESCE(p.vchNombre, m.vchNombre) AS nombre_articulo,
@@ -52,7 +52,6 @@ export const obtenerTopProductosDB = async () => {
         WHERE ped.vchEstado = 'Entregado'
         GROUP BY nombre_articulo
         ORDER BY total_vendido DESC
-        LIMIT 5
-    `);
+    `); // <--- Se eliminó el LIMIT 5
     return rows;
 };
