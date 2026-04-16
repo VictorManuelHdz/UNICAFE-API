@@ -51,7 +51,8 @@ export const calcularModeloPredictivo = async (req, res) => {
         // Dentro de calcularModeloPredictivo...
 
         // 1. Cambiar la llamada al modelo
-        const todosLosProductos = await reportesmodelo.obtenerTodosLosProductosDB();
+        // reportes.controller.js
+        const todosLosProductos = await reportesmodelo.obtenerTodosLosProductosDB(); // Verifica que el nombre coincida aquí
 
         // 2. Calcular el total global de unidades vendidas de todos los productos
         const totalGlobalVendido = todosLosProductos.reduce((acc, curr) => acc + Number(curr.total_vendido), 0);
