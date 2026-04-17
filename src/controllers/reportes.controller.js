@@ -43,30 +43,27 @@ export const calcularModeloPredictivo = async (req, res) => {
             ventasAnteriores = ventas;
         }
 
-        const todosLosProductos = await reportesmodelo.obtenerTodosLosProductosDB();
-        const totalGlobalVendido = todosLosProductos.reduce((acc, curr) => acc + Number(curr.total_vendido), 0);
+       // reportes.controller.js
 
-        const proyeccionInsumos = todosLosProductos.map(prod => {
-            const cantidadActual = Number(prod.total_vendido);
-            const porcentajeParticipacion = totalGlobalVendido > 0 ? cantidadActual / totalGlobalVendido : 0;
-            const demandaEstimada = Math.round(ventasProyectadas * porcentajeParticipacion);
+const proyeccionInsumos = todosLosProductos.map(prod => {
+    // 1. C inicial para este producto específico
+    const cantidadActual = Number(prod.total_vendido); 
+    
+    // 2. Aplicamos la fórmula de crecimiento individual: x(t) = C * e^(k*t)
+    // k es la misma constante de proporcionalidad calculada arriba (ln(2)/td)
+    const demandaEstimada = Math.round(cantidadActual * Math.exp(k * tProyeccion));
 
-            return {
-                articulo: prod.nombre_articulo,
-                cantidadBase: cantidadActual,
-                porcentajePopularidad: (porcentajeParticipacion * 100).toFixed(1),
-                demandaProyectada: demandaEstimada,
-                incrementoNeto: demandaEstimada - cantidadActual
-            };
-        });
+    // 3. Calculamos su participación actual solo para fines informativos
+    const porcentajeParticipacion = totalGlobalVendido > 0 ? (cantidadActual / totalGlobalVendido) * 100 : 0;
 
-        res.status(200).json({
-            success: true,
-            parametros: { C, td, tProyeccion, k },
-            resultados: { ventasProyectadas, totalAcumulado },
-            proyecciones: proyecciones,
-            insumos: proyeccionInsumos
-        });
+    return {
+        articulo: prod.nombre_articulo,
+        cantidadBase: cantidadActual,
+        porcentajePopularidad: porcentajeParticipacion.toFixed(1),
+        demandaProyectada: demandaEstimada, // Resultado de la fórmula de Malthus por producto
+        incrementoNeto: demandaEstimada - cantidadActual
+    };
+});
 
     } catch (error) {
         console.error("Error en el modelo predictivo:", error);
