@@ -13,61 +13,71 @@ export const obtenerDashboard = async (req, res) => {
 //Funcion para el modelo predictivo
 export const calcularModeloPredictivo = async (req, res) => {
     try {
-        const C = parseFloat(req.body.ventasIniciales) || 26;
+        const C_global = parseFloat(req.body.ventasIniciales) || 26;
         const td = parseFloat(req.body.tiempoDuplicacion) || 2;
         const tProyeccion = parseFloat(req.body.tiempoProyeccion) || 6;
 
+        // 1. Constante de proporcionalidad k basada en el tiempo de duplicación
         const k = Math.log(2) / td;
-        const ventasProyectadas = C * Math.exp(k * tProyeccion);
 
+        // 2. Generar serie de tiempo global (para la gráfica)
         const proyecciones = [];
-        let ventasAnteriores = C;
+        let ventasAnteriores = C_global;
         let totalAcumulado = 0;
-        const maxMeses = tProyeccion;
 
-        for (let mes = 0; mes <= maxMeses; mes++) {
-            const ventasExactas = C * Math.exp(k * mes);
+        for (let mes = 0; mes <= tProyeccion; mes++) {
+            const ventasExactas = C_global * Math.exp(k * mes);
             const ventas = Math.round(ventasExactas);
             const incremento = mes === 0 ? 0 : ventas - ventasAnteriores;
-            const porcentaje = mes === 0 ? 0 : ((ventas - ventasAnteriores) / ventasAnteriores) * 100;
+            
+            // Calculamos el porcentaje basado en k para que coincida con la Memoria (34.66%)
+            const porcentajeK = mes === 0 ? 0 : k * 100;
 
             proyecciones.push({
                 mes,
                 ventas,
-                ventasExactas,
                 incremento,
-                porcentajeIncremento: porcentaje
+                porcentajeIncremento: porcentajeK
             });
 
             totalAcumulado += ventas;
             ventasAnteriores = ventas;
         }
 
-       // reportes.controller.js
+        // 3. CÁLCULO INDIVIDUAL POR PRODUCTO (La nueva lógica que pediste)
+        const todosLosProductos = await reportesmodelo.obtenerTodosLosProductosDB();
+        
+        const proyeccionInsumos = todosLosProductos.map(prod => {
+            // C_i es la venta actual de este producto específico
+            const Ci_producto = Number(prod.total_vendido); 
+            
+            // Aplicamos: x(t) = Ci * e^(k * t)
+            const demandaIndividual = Ci_producto * Math.exp(k * tProyeccion);
+            const demandaRedondeada = Math.round(demandaIndividual);
 
-const proyeccionInsumos = todosLosProductos.map(prod => {
-    // 1. C inicial para este producto específico
-    const cantidadActual = Number(prod.total_vendido); 
-    
-    // 2. Aplicamos la fórmula de crecimiento individual: x(t) = C * e^(k*t)
-    // k es la misma constante de proporcionalidad calculada arriba (ln(2)/td)
-    const demandaEstimada = Math.round(cantidadActual * Math.exp(k * tProyeccion));
+            return {
+                articulo: prod.nombre_articulo,
+                cantidadBase: Ci_producto,
+                demandaProyectada: demandaRedondeada,
+                incrementoNeto: demandaRedondeada - Ci_producto
+            };
+        });
 
-    // 3. Calculamos su participación actual solo para fines informativos
-    const porcentajeParticipacion = totalGlobalVendido > 0 ? (cantidadActual / totalGlobalVendido) * 100 : 0;
-
-    return {
-        articulo: prod.nombre_articulo,
-        cantidadBase: cantidadActual,
-        porcentajePopularidad: porcentajeParticipacion.toFixed(1),
-        demandaProyectada: demandaEstimada, // Resultado de la fórmula de Malthus por producto
-        incrementoNeto: demandaEstimada - cantidadActual
-    };
-});
+        // 4. Enviar respuesta final
+        res.status(200).json({
+            success: true,
+            parametros: { C_global, td, tProyeccion, k },
+            resultados: { 
+                ventasProyectadas: Math.round(C_global * Math.exp(k * tProyeccion)), 
+                totalAcumulado 
+            },
+            proyecciones,
+            insumos: proyeccionInsumos
+        });
 
     } catch (error) {
         console.error("Error en el modelo predictivo:", error);
-        res.status(500).json({ success: false, error: 'Error al calcular la predicción.' });
+        res.status(500).json({ success: false, error: 'Error en el cálculo del modelo.' });
     }
 };
 export const obtenerVentasReales = async (req, res) => {
