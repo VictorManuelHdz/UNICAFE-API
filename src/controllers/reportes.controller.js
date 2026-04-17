@@ -11,7 +11,6 @@ export const obtenerDashboard = async (req, res) => {
 };
 
 //Funcion para el modelo predictivo
-
 export const calcularModeloPredictivo = async (req, res) => {
     try {
         const C = parseFloat(req.body.ventasIniciales) || 26;
@@ -24,7 +23,7 @@ export const calcularModeloPredictivo = async (req, res) => {
         const proyecciones = [];
         let ventasAnteriores = C;
         let totalAcumulado = 0;
-        const maxMeses = Math.max(12, tProyeccion + 2);
+        const maxMeses = tProyeccion;
 
         for (let mes = 0; mes <= maxMeses; mes++) {
             const ventasExactas = C * Math.exp(k * mes);
@@ -61,9 +60,6 @@ export const calcularModeloPredictivo = async (req, res) => {
             };
         });
 
-        // ============================================================
-        // ¡ESTO ES LO QUE FALTABA! ENVIAR LA RESPUESTA AL FRONTEND
-        // ============================================================
         res.status(200).json({
             success: true,
             parametros: { C, td, tProyeccion, k },
