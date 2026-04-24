@@ -20,7 +20,7 @@ export const calcularModeloPredictivo = async (req, res) => {
         // 1. Constante de proporcionalidad k basada en el tiempo de duplicación
         const k = Math.log(2) / td;
 
-        // 2. Generar serie de tiempo global (para la gráfica)
+        // 2. Generar serie de tiempo global 
         const proyecciones = [];
         let ventasAnteriores = C_global;
         let totalAcumulado = 0;
@@ -29,8 +29,6 @@ export const calcularModeloPredictivo = async (req, res) => {
             const ventasExactas = C_global * Math.exp(k * mes);
             const ventas = Math.round(ventasExactas);
             const incremento = mes === 0 ? 0 : ventas - ventasAnteriores;
-            
-            // Calculamos el porcentaje basado en k para que coincida con la Memoria (34.66%)
             const porcentajeK = mes === 0 ? 0 : k * 100;
 
             proyecciones.push({
@@ -48,10 +46,7 @@ export const calcularModeloPredictivo = async (req, res) => {
         const todosLosProductos = await reportesmodelo.obtenerTodosLosProductosDB();
         
         const proyeccionInsumos = todosLosProductos.map(prod => {
-            // C_i es la venta actual de este producto específico
             const Ci_producto = Number(prod.total_vendido); 
-            
-            // Aplicamos: x(t) = Ci * e^(k * t)
             const demandaIndividual = Ci_producto * Math.exp(k * tProyeccion);
             const demandaRedondeada = Math.round(demandaIndividual);
 

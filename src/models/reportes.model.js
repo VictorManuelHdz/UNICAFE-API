@@ -50,7 +50,7 @@ export const obtenerTodosLosProductosDB = async () => {
         LEFT JOIN tblproductos p ON dp.intIdProducto = p.intIdProducto
         LEFT JOIN tblmenu m ON dp.intIdPlatillo = m.intIdPlatillo
         WHERE ped.vchEstado = 'Entregado'
-        GROUP BY nombre_articulo
+        GROUP BY p.intIdProducto
         ORDER BY total_vendido DESC
     `);
     return rows;
