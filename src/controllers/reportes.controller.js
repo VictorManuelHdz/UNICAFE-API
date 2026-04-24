@@ -13,12 +13,13 @@ export const obtenerDashboard = async (req, res) => {
 //Funcion para el modelo predictivo
 export const calcularModeloPredictivo = async (req, res) => {
     try {
+        //aqui se modifican las variables
         const C_global = parseFloat(req.body.ventasIniciales) || 26;
-        const td = 3;
+        const td = parseFloat(req.body.tiempoDuplicacion) || 2;
         const tProyeccion = parseFloat(req.body.tiempoProyeccion) || 6;
 
         // 1. Constante de proporcionalidad k basada en el tiempo de duplicación
-        const k = Math.log(3) / td;
+        const k = Math.log(2) / td;
 
         // 2. Generar serie de tiempo global 
         const proyecciones = [];
