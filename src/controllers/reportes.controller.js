@@ -14,11 +14,11 @@ export const obtenerDashboard = async (req, res) => {
 export const calcularModeloPredictivo = async (req, res) => {
     try {
         const C_global = parseFloat(req.body.ventasIniciales) || 26;
-        const td = parseFloat(req.body.tiempoDuplicacion) || 2;
+        const td = 3;
         const tProyeccion = parseFloat(req.body.tiempoProyeccion) || 6;
 
         // 1. Constante de proporcionalidad k basada en el tiempo de duplicación
-        const k = Math.log(2) / td;
+        const k = Math.log(3) / td;
 
         // 2. Generar serie de tiempo global 
         const proyecciones = [];
